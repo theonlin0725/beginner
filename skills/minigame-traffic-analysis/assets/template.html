@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__ · 常态化分析框架</title>
+__ECHARTS__
+__DATA__
+<style>
+:root{
+  --bg:#0b0f16; --panel:#121826; --panel2:#0f1420; --line:#232d42;
+  --txt:#e6edf7; --sub:#8b98ad; --dim:#5b6778;
+  --blue:#4d9fff; --green:#3ecf8e; --yellow:#f7c948; --red:#ff6b6b;
+  --purple:#a78bfa; --cyan:#22d3ee; --orange:#fb923c; --pink:#f472b6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.6}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 20px 80px}
+header{padding:28px 0 8px}
+header h1{font-size:26px;font-weight:700}
+header .meta{color:var(--sub);margin-top:6px;font-size:13px}
+.badge{display:inline-block;background:#1c2536;border:1px solid var(--line);border-radius:20px;padding:2px 12px;margin-right:8px;font-size:12px;color:#9fb3d1}
+nav{position:sticky;top:0;z-index:50;background:rgba(11,15,22,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);margin:16px -20px 0;padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap}
+nav a{color:var(--sub);text-decoration:none;padding:6px 14px;border-radius:8px;font-size:13px;transition:.2s}
+nav a:hover,nav a.on{background:#1d2a44;color:#fff}
+section{margin-top:44px}
+h2{font-size:20px;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+h2 .no{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#2563eb,#7c3aed);font-size:14px}
+.sec-sub{color:var(--sub);font-size:13px;margin-bottom:16px}
+h3{font-size:15px;margin:22px 0 10px;color:#c9d6ea}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card .k{color:var(--sub);font-size:12px}
+.card .v{font-size:22px;font-weight:700;margin-top:2px}
+.card .d{font-size:11px;color:var(--sub);margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0}
+.chart{width:100%;height:460px}
+.chart.sm{height:380px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px}
+.tab{cursor:pointer;padding:6px 16px;border-radius:8px;background:#182136;border:1px solid var(--line);color:var(--sub);font-size:13px;user-select:none;transition:.15s}
+.tab.on{background:#2456c5;border-color:#2f6ae0;color:#fff}
+.note{background:#131c2e;border-left:3px solid var(--blue);border-radius:0 10px 10px 0;padding:12px 16px;font-size:13px;color:#b9c7dd;margin:12px 0}
+.note b{color:#fff}
+.warn{border-left-color:var(--yellow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+th{color:var(--sub);font-weight:600;text-align:right;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:default}
+th:first-child,td:first-child{text-align:left}
+th:nth-child(2),td:nth-child(2){text-align:left}
+td{padding:7px 10px;border-bottom:1px solid #1a2234;text-align:right;white-space:nowrap}
+tr:hover td{background:#151d30}
+.tag{display:inline-block;padding:1px 10px;border-radius:12px;font-size:11.5px;font-weight:600}
+.t-up{background:rgba(62,207,142,.15);color:#3ecf8e}
+.t-keep{background:rgba(77,159,255,.15);color:#4d9fff}
+.t-fix{background:rgba(247,201,72,.15);color:#f7c948}
+.t-down{background:rgba(255,107,107,.15);color:#ff6b6b}
+.t-na{background:rgba(139,152,173,.15);color:#8b98ad}
+.good{color:#3ecf8e}.bad{color:#ff6b6b}.mid{color:#f7c948}
+.method{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.m-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.m-card h4{font-size:14px;margin-bottom:8px;color:#fff}
+.m-card p{font-size:12.5px;color:var(--sub)}
+.m-card code{background:#1b2438;padding:1px 6px;border-radius:4px;font-size:12px;color:#8fd0ff}
+pre{background:#0d1320;border:1px solid var(--line);border-radius:10px;padding:14px;font-size:12px;overflow-x:auto;color:#a8c7e8;line-height:1.55}
+.foot{color:var(--sub);font-size:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+.legend-cat{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);margin-top:6px}
+.legend-cat span::before{content:"●";margin-right:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>__H1__</h1>
+  <div class="meta">
+    <span class="badge">数据窗口 __DATE_RANGE__</span>
+    <span class="badge">渠道 __CHANNEL__</span>
+    <span class="badge">收入口径：广告分成前收入（USD）</span>
+    <span class="badge" id="b-games"></span>
+    <span class="badge">框架目标：可复制到其他 App 的常态化分析</span>
+  </div>
+</header>
+
+<nav id="nav">
+  <a href="#s0" class="on">大盘总览</a>
+  <a href="#s1">① 存量流量分发评估</a>
+  <a href="#s2">② 新用户流量分配评估</a>
+  <a href="#s3">③ 分国家品类供需与选品</a>
+  <a href="#s4">④ 方法论：为什么这样对比才科学</a>
+  <a href="#s5">⑤ 常态化 AI 分析 Skill 设计</a>
+</nav>
+
+<!-- ============ S0 总览 ============ -->
+<section id="s0">
+  <h2><span class="no">0</span>大盘总览</h2>
+  <div class="sec-sub">先看盘子多大、钱从哪来，再谈怎么分流量。</div>
+  <div class="cards" id="kpi"></div>
+  <div class="grid2">
+    <div class="panel"><h3 style="margin-top:0">日活跃 / 新增趋势</h3><div id="c-trend" class="chart sm"></div></div>
+    <div class="panel"><h3 style="margin-top:0">国家盘子：活跃 × 收入 ×变现单价</h3><div id="c-country" class="chart sm"></div></div>
+  </div>
+  <div class="note" id="s0-insight"></div>
+</section>
+
+<!-- ============ S1 存量流量分发 ============ -->
+<section id="s1">
+  <h2><span class="no">1</span>存量流量分发评估（游戏 × 国家）</h2>
+  <div class="sec-sub">
+    每个国家一张「效率四象限」图：X=7日滚动留存率（流量质量），Y=ARPDAU（每千活跃产出美元，营收效率），气泡大小=活跃规模（只表规模、不参与坐标）。虚线为该国大盘加权均值 —— <b>所有对比都在国家内部、且只比"比率"，规模大小不影响位置</b>。
+  </div>
+  <div class="tabs" id="tabs1"></div>
+  <div class="panel">
+    <div id="c-quad1" class="chart"></div>
+    <div class="legend-cat" id="lg1"></div>
+  </div>
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">分配效率指数 RQ =收入份额 ÷ 活跃份额</h3>
+      <div style="color:var(--sub);font-size:12px;margin-bottom:6px">RQ&gt;1：该游戏每一份流量换来的收入高于该国平均 → 流量给少了；RQ&lt;1 反之。天然免疫规模差异。</div>
+      <div id="c-rq" class="chart sm"></div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">流量错配观察：活跃份额 vs 收入份额</h3>
+      <div style="color:var(--sub);font-size:12px;margin-bottom:6px">柱子高于折线 = 占了流量没换来钱；低于折线 = 被低估的赚钱游戏。</div>
+      <div id="c-mismatch" class="chart sm"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">分发动作清单（当前国家 · 按活跃规模排序）</h3>
+    <div id="t1"></div>
+  </div>
+  <div class="note" id="s1-insight"></div>
+</section>
+
+<!-- ============ S2 新用户流量分配 ============ -->
+<section id="s2">
+  <h2><span class="no">2</span>新用户流量分配评估（游戏 × 国家）</h2>
+  <div class="sec-sub">
+    新用户是最贵的流量。X=新用户次留率（承接质量），Y=该游戏在该国的 ARPDAU（变现质量），气泡=30天注册UV（当前分配量）。<b>问的问题是：把新用户导给了留得住、赚得到的游戏吗？</b>虚线为该国新用户大盘均值。
+  </div>
+  <div class="tabs" id="tabs2"></div>
+  <div class="panel">
+    <div id="c-quad2" class="chart"></div>
+    <div class="legend-cat" id="lg2"></div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">新用户分配份额 vs 承接质量（当前国家）</h3>
+    <div style="color:var(--sub);font-size:12px;margin-bottom:6px">柱=新用户注册份额（当前怎么分的），点=新用户次留相对大盘倍数（分得对不对）。柱高点低 = 新量在浪费。</div>
+    <div id="c-newalloc" class="chart sm"></div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">新量调配动作清单（当前国家 · 按注册UV排序）</h3>
+    <div id="t2"></div>
+  </div>
+  <div class="note" id="s2-insight"></div>
+</section>
+
+<!-- ============ S3 品类供需 ============ -->
+<section id="s3">
+  <h2><span class="no">3</span>分国家品类供需分析 → 选品策略</h2>
+  <div class="sec-sub">
+    供给=品类占用的流量/在架数量；需求质量=用户用留存和付费投出来的票（品类7留、ARPDAU 相对该国大盘的倍数）。<b>质量高而供给少 → 加大供给；质量高供给足 → 保持；质量低供给多 → 收缩；质量低供给少 → 定向试点</b>。
+  </div>
+  <div class="tabs" id="tabs3"></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3 style="margin-top:0">品类供需四象限</h3>
+      <div style="color:var(--sub);font-size:12px;margin-bottom:6px">X=供给（活跃流量份额），Y=需求质量指数（0.5×留存倍数+0.5×变现倍数），气泡=在架游戏数。</div>
+      <div id="c-quad3" class="chart sm"></div>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">品类三份额对比：新增 / 活跃 / 收入</h3>
+      <div style="color:var(--sub);font-size:12px;margin-bottom:6px">三根柱子背离越大，说明分发和产出越错位（新增份额≫收入份额 = 新量投错品类）。</div>
+      <div id="c-catshare" class="chart sm"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">选品结论（当前国家）</h3>
+    <div id="t3"></div>
+  </div>
+  <div class="note" id="s3-insight"></div>
+  <div class="note warn" id="s3-caveat"></div>
+</section>
+
+<!-- ============ S4 方法论 ============ -->
+<section id="s4">
+  <h2><span class="no">4</span>方法论：为什么这样对比才科学</h2>
+  <div class="sec-sub">保证「不同规模的游戏可以放在同一张图上比效率」，是整套框架的地基。</div>
+  <div class="method">
+    <div class="m-card"><h4>1. 效率坐标只用比率，规模只做气泡</h4><p>留存率、ARPDAU、人均时长都是"人均/比率"指标，天然与体量无关；活跃UV/注册UV 只映射为气泡大小。避免了"UV大的游戏收入总额也大 → 看起来更好"的伪结论。</p></div>
+    <div class="m-card"><h4>2. 国家内对比，不跨国比绝对值</h4><p>泰国 eCPM ≈ 印尼的 1.6 倍，跨国直接比 ARPDAU 会把"国家变现水位差"错当成"游戏好坏"。所以每张图的基准线是<code>该国大盘加权均值</code>，位置含义 = 相对本国平均的倍数。</p></div>
+    <div class="m-card"><h4>3. 份额比消规模：RQ = 收入份额 ÷ 活跃份额</h4><p>两个份额的分母都是本国大盘，相除后规模完全约掉。RQ&gt;1 即"单位流量产出超过平均"，直接回答"流量给多了还是给少了"。</p></div>
+    <div class="m-card"><h4>4. 留存只统计"可观测窗口"</h4><p>7/27 注册的用户在 7/28 还看不到次留。次留只累计到 <code>≤07-26</code>、7留只累计到 <code>≤07-20</code> 的注册日，并按注册UV加权，杜绝近期"假0%"拉低平均。</p></div>
+    <div class="m-card"><h4>5. 小样本熔断</h4><p>30天活跃 &lt;300 人日（约日均DAU&lt;10）或注册 &lt;100 的组合，比率抖动过大：图中降透明度、结论表标记「样本不足」，不参与加/减量建议，防止用噪声做决策。</p></div>
+    <div class="m-card"><h4>6. 双指标交叉，防单指标误杀</h4><p>留存×变现四象限：高留存低变现是"广告策略问题"（提变现），低留存高变现是"短线收割"（控量），二者动作完全不同——单看任何一个指标都会开错药方。</p></div>
+    <div class="m-card"><h4>7. 新游豁免与生命周期标注</h4><p>上线初期留存天然偏低（用户结构全是新用户）。近14天内新上架的游戏建议单独标注观察，不直接判"收缩"。本期 Mahjong Tile Match 即为放量爬坡期典型。</p></div>
+    <div class="m-card"><h4>8. 品类聚合防辛普森悖论</h4><p>品类指标一律按 UV 加权聚合，同时保留"在架游戏数"：某品类整体差可能只是被一款大盘子拖累，收缩前先看品类内部头部游戏是否健康。</p></div>
+  </div>
+</section>
+
+<!-- ============ S5 Skill ============ -->
+<section id="s5">
+  <h2><span class="no">5</span>常态化 AI 分析 Skill 设计（可复制到其他 App）</h2>
+  <div class="sec-sub">把本页的口径固化为一个 AI Skill：丢入任意 App 的三张日表 CSV，自动产出同款分析页。</div>
+  <div class="panel">
+<pre>
+Skill 名称：minigame-traffic-analysis（小游戏流量分发与选品分析）
+
+【输入契约】三张日表 CSV（字段名兼容映射，不强求完全一致）
+  ① 注册指标表：日期 / 游戏名 / 品类 / 国家 / 用户类型 / 注册uv / 次留~30留
+  ② 活跃指标表：日期 / 游戏名 / 品类 / 国家 / 用户类型 / 活跃uv / 人均次数 / 人均时长 / 滚动留存
+  ③ 广告收入表：日期 / 游戏名 / 品类 / 国家 / 曝光 / 点击 / ecpm / 分成前后收入(USD)
+
+【固定分析流水线】
+  Step1 数据体检：日期覆盖、重复文件(MD5)、留存可观测窗口(次留≤T-1、7留≤T-7)、
+        品类缺失率(>50%时启用游戏名规则推断并显式标注)
+  Step2 聚合：游戏×国家×用户类型 30天聚合；比率指标一律UV加权
+  Step3 效率指标：ARPDAU($/千DAU)、加权D1/D7、RQ=收入份额÷活跃份额、
+        质量指数Q=0.5×(D7/国家大盘)+0.5×(ARPDAU/国家大盘)
+  Step4 三大评估：存量四象限 → 新用户四象限 → 品类供需四象限
+  Step5 动作映射（阈值可配）：
+        存量: Q双高→加大分发 | 留存高变现低→提变现 | 留存低变现高→控量 | 双低→收缩
+        新量: 次留≥大盘×1.1且份额<收入份额→新量加码 | 次留<大盘×0.8且份额高→新量削减
+        品类: 质量≥1.05且供给份额<25%→加供给 | 质量≥0.95→保持 |
+              质量<0.95且供给≥15%→收缩 | 其余→定向试点
+  Step6 输出：暗色 ECharts 单页报告 + 动作清单表 + 待核实清单
+
+【硬性护栏】
+  - 效率对比只用比率指标，规模只做气泡大小
+  - 一律国家内对比，基准线=该国大盘加权均值
+  - 样本熔断：活跃<300人日 或 注册<100 不出加减量结论
+  - 上线<14天的新游标注"爬坡期"，不判收缩
+  - 所有推断字段（如品类推断）必须显式标注，不冒充事实
+</pre>
+  </div>
+  <div class="note">该 Skill 已同步创建到本机 <b>~/.workbuddy/skills/minigame-traffic-analysis/</b>，下次对任意 App（如其他海外 App 渠道）丢入同构 CSV 说「跑一遍小游戏流量分析」即可复现本报告。</div>
+</section>
+
+<div class="foot">
+  口径备注：收入=广告分成前收入(USD)；ARPDAU 以 $/千DAU 表示；留存为滚动留存(活跃口径)与注册留存(新用户口径)两套，图表已分别标注；品类含名称推断成分（数据源三级品类缺失率约 70%），推断项已在表格中标注 ⓘ。数据截至 2026-07-27，t+1 广告数据完整。
+</div>
+</div>
+
+<script>
+const D = window.DATA;
+const COUNTRIES = ["印度尼西亚","泰国","马来西亚","菲律宾"];
+const CATS = ["消除","益智解谜","分类整理(Sort)","塔防射击","救援闯关","模拟经营","其他"];
+const CAT_COLOR = {"消除":"#4d9fff","益智解谜":"#a78bfa","分类整理(Sort)":"#3ecf8e","塔防射击":"#fb923c","救援闯关":"#f472b6","模拟经营":"#22d3ee","其他":"#8b98ad"};
+const MIN_UV = 300, MIN_REG = 100;
+const fmt = n => n==null?"–":n.toLocaleString("en-US");
+const pc = (n,d=1) => n==null?"–":(n*100).toFixed(d)+"%";
+const catSrc = {}; D.cat_map.forEach(m=>catSrc[m.game]=m.src);
+const dark = {textStyle:{color:"#c9d6ea"},backgroundColor:"transparent"};
+const axis = {axisLine:{lineStyle:{color:"#2a3550"}},axisLabel:{color:"#8b98ad"},splitLine:{lineStyle:{color:"#1a2234"}}};
+function mkChart(id){const c=echarts.init(document.getElementById(id),null,{renderer:"canvas"});window.addEventListener("resize",()=>c.resize());return c}
+
+/* ---------- KPI ---------- */
+const B = D.bench;
+document.getElementById("b-games").textContent = "在架游戏 " + new Set(D.matrix_all.map(r=>r.game)).size + " 款";
+const kpis = [
+ ["日均 DAU", Math.round(B.ALL.act_uv/30).toLocaleString(), "30天活跃 "+fmt(B.ALL.act_uv)+" 人日"],
+ ["30天广告收入", "$"+fmt(Math.round(B.ALL.rev)), "分成前口径"],
+ ["大盘 ARPDAU", "$"+B.ALL.arpdau+"/千DAU", "≈日均 $"+(B.ALL.rev/30).toFixed(0)],
+ ["大盘次留(活跃)", pc(B.ALL.d1), "7留 "+pc(B.ALL.d7)],
+ ["新用户次留", pc(B.ALL.new_d1), "新用户7留 "+pc(B.ALL.new_d7)],
+ ["30天新增注册", fmt(B.ALL.reg_uv), "日均 "+Math.round(B.ALL.reg_uv/30)],
+];
+document.getElementById("kpi").innerHTML = kpis.map(k=>`<div class="card"><div class="k">${k[0]}</div><div class="v">${k[1]}</div><div class="d">${k[2]}</div></div>`).join("");
+
+/* ---------- 趋势 ---------- */
+(()=>{
+const c = mkChart("c-trend");
+c.setOption({...dark,tooltip:{trigger:"axis",backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"}},
+legend:{textStyle:{color:"#8b98ad"},top:0},
+grid:{left:50,right:20,top:36,bottom:30},
+xAxis:{type:"category",data:D.trend.map(t=>t.date.slice(4,6)+"/"+t.date.slice(6)),...axis},
+yAxis:{type:"value",...axis},
+series:[
+ {name:"活跃UV",type:"line",smooth:true,data:D.trend.map(t=>t.dau),lineStyle:{width:2.5,color:"#4d9fff"},itemStyle:{color:"#4d9fff"},areaStyle:{color:"rgba(77,159,255,.08)"},symbol:"none"},
+ {name:"新用户",type:"line",smooth:true,data:D.trend.map(t=>t.new),lineStyle:{width:2,color:"#3ecf8e"},itemStyle:{color:"#3ecf8e"},symbol:"none"},
+]});
+})();
+
+/* ---------- 国家盘子 ---------- */
+(()=>{
+const c = mkChart("c-country");
+const rows = COUNTRIES.map(k=>({k,...B[k]}));
+c.setOption({...dark,tooltip:{trigger:"axis",backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"}},
+legend:{textStyle:{color:"#8b98ad"},top:0},
+grid:{left:60,right:60,top:36,bottom:30},
+xAxis:{type:"category",data:rows.map(r=>r.k),...axis},
+yAxis:[{type:"value",name:"人日/美元",...axis},{type:"value",name:"ARPDAU $/千DAU",...axis,splitLine:{show:false}}],
+series:[
+ {name:"30天活跃(人日)",type:"bar",data:rows.map(r=>r.act_uv),itemStyle:{color:"#2f5fb8",borderRadius:[4,4,0,0]},barWidth:26},
+ {name:"30天收入($)",type:"bar",data:rows.map(r=>Math.round(r.rev)),itemStyle:{color:"#3ecf8e",borderRadius:[4,4,0,0]},barWidth:26},
+ {name:"ARPDAU",type:"line",yAxisIndex:1,data:rows.map(r=>r.arpdau),lineStyle:{color:"#f7c948",width:2.5},itemStyle:{color:"#f7c948"},symbolSize:8},
+]});
+})();
+document.getElementById("s0-insight").innerHTML =
+`<b>大盘读数：</b>盘子集中在 <b>泰国（收入 $${fmt(Math.round(B["泰国"].rev))}，占 ${pc(B["泰国"].rev/B.ALL.rev)}）</b> 和 <b>印尼（$${fmt(Math.round(B["印度尼西亚"].rev))}）</b>；但变现单价排序是 <b>马来（ARPDAU $${B["马来西亚"].arpdau}） &gt; 泰国（$${B["泰国"].arpdau}） &gt; 菲律宾 &gt; 印尼（$${B["印度尼西亚"].arpdau}）</b>——印尼是"人多钱少"，泰国/马来是"单客值钱"。这决定了下面所有效率对比必须<b>分国家做</b>，且马来西亚虽小值得单独运营。`;
+
+/* ========== 通用四象限 ========== */
+function quad(chartId, rows, xKey, yKey, sizeKey, bx, by, xName, yName, sizeName, minSize){
+const c = mkChart(chartId);
+const series = CATS.map(cat=>{
+  const pts = rows.filter(r=>r.cat===cat && r[xKey]!=null && r[yKey]!=null && r[yKey]>0);
+  return {name:cat,type:"scatter",
+    data:pts.map(r=>({value:[r[xKey]*(xKey.includes("d1")||xKey.includes("d7")?100:1), r[yKey], r[sizeKey], r.game],
+      low:r[sizeKey]<minSize,
+      itemStyle:{color:CAT_COLOR[cat],opacity:r[sizeKey]<minSize?0.28:0.85,borderColor:r[sizeKey]<minSize?"#555":"#fff",borderWidth:r[sizeKey]<minSize?0.5:0.8}})),
+    symbolSize:d=>Math.max(8,Math.sqrt(d[2])*(sizeKey==="reg_uv"?0.9:0.42)),
+    label:{show:true,formatter:p=>p.data.value[2]>=minSize*3?p.data.value[3]:"",position:"top",color:"#aab8d0",fontSize:10.5},
+  };
+});
+c.setOption({...dark,
+tooltip:{backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"},
+ formatter:p=>`<b>${p.data.value[3]}</b>（${p.seriesName}）<br/>${xName}: ${p.data.value[0].toFixed(1)}${xKey.includes("d")?"%":""}<br/>${yName}: ${p.data.value[1]}<br/>${sizeName}: ${fmt(Math.round(p.data.value[2]))}${p.data.low?"<br/><span style='color:#f7c948'>⚠ 样本不足，仅供参考</span>":""}`},
+grid:{left:60,right:30,top:30,bottom:44},
+xAxis:{type:"value",name:xName,nameLocation:"middle",nameGap:30,nameTextStyle:{color:"#8b98ad"},...axis},
+yAxis:{type:"value",name:yName,nameTextStyle:{color:"#8b98ad"},...axis},
+series: series.concat([{type:"scatter",data:[],markLine:{silent:true,symbol:"none",
+ lineStyle:{type:"dashed",color:"#5b6778"},
+ label:{color:"#8b98ad",fontSize:11},
+ data:[{xAxis:bx*(xKey.includes("d1")||xKey.includes("d7")?100:1),label:{formatter:"大盘 "+xName}},{yAxis:by,label:{formatter:"大盘 "+yName,position:"end"}}]}}])
+});
+return c;
+}
+function legendHtml(id){document.getElementById(id).innerHTML = CATS.map(c=>`<span style="color:${CAT_COLOR[c]}">${c}</span>`).join("");}
+legendHtml("lg1"); legendHtml("lg2");
+
+/* ========== S1 存量 ========== */
+let cur1 = "泰国";
+const tabs1 = document.getElementById("tabs1");
+COUNTRIES.forEach(c=>{
+  const el=document.createElement("div");el.className="tab"+(c===cur1?" on":"");el.textContent=c;
+  el.onclick=()=>{cur1=c;[...tabs1.children].forEach(x=>x.classList.toggle("on",x.textContent===c));renderS1()};
+  tabs1.appendChild(el);
+});
+function actionStock(r,b){
+  if(r.act_uv<MIN_UV) return ["样本不足","t-na"];
+  const rd=r.d7!=null?r.d7/b.d7:0, ra=r.arpdau!=null?r.arpdau/b.arpdau:0;
+  if(rd>=1&&ra>=1) return ["加大分发","t-up"];
+  if(rd>=1&&ra<1) return ["提变现","t-fix"];
+  if(rd<1&&ra>=1) return ["控量观察","t-keep"];
+  return ["收缩","t-down"];
+}
+function renderS1(){
+  const b=B[cur1];
+  const rows=D.matrix_all.filter(r=>r.country===cur1);
+  quad("c-quad1",rows,"d7","arpdau","act_uv",b.d7,b.arpdau,"7日留存率%","ARPDAU $/千DAU","30天活跃人日",MIN_UV);
+  // RQ bar
+  const rq=rows.filter(r=>r.act_uv>=MIN_UV&&r.rq!=null).sort((a,b2)=>a.rq-b2.rq);
+  mkChart("c-rq").setOption({...dark,tooltip:{backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"},formatter:p=>`${p.name}<br/>RQ=${p.value}｜活跃份额 ${pc(rq[p.dataIndex].share_uv)}｜收入份额 ${pc(rq[p.dataIndex].share_rev)}`},
+    grid:{left:150,right:40,top:10,bottom:30},
+    xAxis:{type:"value",...axis},
+    yAxis:{type:"category",data:rq.map(r=>r.game),...axis,axisLabel:{color:"#aab8d0",fontSize:11}},
+    series:[{type:"bar",data:rq.map(r=>({value:r.rq,itemStyle:{color:r.rq>=1?"#3ecf8e":"#ff6b6b",opacity:.85,borderRadius:[0,4,4,0]}})),barWidth:12,
+      markLine:{silent:true,symbol:"none",lineStyle:{type:"dashed",color:"#f7c948"},data:[{xAxis:1}],label:{color:"#f7c948",formatter:"RQ=1"}}}]});
+  // mismatch
+  const mm=rows.filter(r=>r.share_uv!=null).sort((a,b2)=>b2.share_uv-a.share_uv).slice(0,12);
+  mkChart("c-mismatch").setOption({...dark,tooltip:{trigger:"axis",backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"},valueFormatter:v=>(v*100).toFixed(1)+"%"},
+    legend:{textStyle:{color:"#8b98ad"},top:0},
+    grid:{left:50,right:20,top:34,bottom:70},
+    xAxis:{type:"category",data:mm.map(r=>r.game),...axis,axisLabel:{color:"#8b98ad",rotate:38,fontSize:10.5}},
+    yAxis:{type:"value",...axis,axisLabel:{color:"#8b98ad",formatter:v=>(v*100).toFixed(0)+"%"}},
+    series:[{name:"活跃份额",type:"bar",data:mm.map(r=>r.share_uv),itemStyle:{color:"#2f5fb8",borderRadius:[3,3,0,0]},barWidth:16},
+      {name:"收入份额",type:"line",data:mm.map(r=>r.share_rev),lineStyle:{color:"#f7c948",width:2.5},itemStyle:{color:"#f7c948"},symbolSize:7}]});
+  // table
+  const tb=rows.filter(r=>r.act_uv>0).sort((a,b2)=>b2.act_uv-a.act_uv).slice(0,18);
+  document.getElementById("t1").innerHTML=`<table><tr><th>游戏</th><th>品类</th><th>日均DAU</th><th>活跃份额</th><th>7留</th><th>vs大盘</th><th>ARPDAU</th><th>vs大盘</th><th>RQ</th><th>建议</th></tr>`+
+   tb.map(r=>{const[a,cls]=actionStock(r,b);const rd=r.d7!=null?r.d7/b.d7:null,ra=r.arpdau!=null?r.arpdau/b.arpdau:null;
+   return `<tr><td>${r.game}${catSrc[r.game]==="名称推断"?" <span style='color:#5b6778'>ⓘ</span>":""}</td><td><span style="color:${CAT_COLOR[r.cat]}">${r.cat}</span></td><td>${fmt(r.avg_dau)}</td><td>${pc(r.share_uv)}</td><td>${pc(r.d7)}</td><td class="${rd>=1?'good':'bad'}">${rd?rd.toFixed(2)+"×":"–"}</td><td>$${r.arpdau??"–"}</td><td class="${ra>=1?'good':'bad'}">${ra?ra.toFixed(2)+"×":"–"}</td><td>${r.rq??"–"}</td><td><span class="tag ${cls}">${a}</span></td></tr>`}).join("")+`</table>`;
+  // insight
+  const up=tb.filter(r=>actionStock(r,b)[0]==="加大分发").map(r=>r.game);
+  const down=tb.filter(r=>actionStock(r,b)[0]==="收缩").map(r=>r.game);
+  const fix=tb.filter(r=>actionStock(r,b)[0]==="提变现").map(r=>r.game);
+  document.getElementById("s1-insight").innerHTML=`<b>${cur1}读数：</b>右上角双优（留存、变现均超大盘）建议加大分发：<b class="good">${up.slice(0,5).join("、")||"无"}</b>；左下双差建议收缩流量：<b class="bad">${down.slice(0,5).join("、")||"无"}</b>；留得住但不赚钱（优先动广告策略而非砍量）：<b class="mid">${fix.slice(0,4).join("、")||"无"}</b>。判断依据全部为"相对该国大盘的倍数"，与游戏体量无关。`;
+}
+renderS1();
+
+/* ========== S2 新用户 ========== */
+let cur2="泰国";
+const tabs2=document.getElementById("tabs2");
+COUNTRIES.forEach(c=>{
+  const el=document.createElement("div");el.className="tab"+(c===cur2?" on":"");el.textContent=c;
+  el.onclick=()=>{cur2=c;[...tabs2.children].forEach(x=>x.classList.toggle("on",x.textContent===c));renderS2()};
+  tabs2.appendChild(el);
+});
+function actionNew(r,b){
+  if((r.reg_uv||0)<MIN_REG) return ["样本不足","t-na"];
+  const rd=r.reg_d1!=null&&b.new_d1?r.reg_d1/b.new_d1:0;
+  const ra=r.arpdau!=null&&b.arpdau?r.arpdau/b.arpdau:0;
+  if(rd>=1.1&&ra>=1) return ["新量加码","t-up"];
+  if(rd>=1) return ["保持","t-keep"];
+  if(rd<0.8&&(r.share_reg||0)>0.05) return ["新量削减","t-down"];
+  return ["观察/优化承接","t-fix"];
+}
+function renderS2(){
+  const b=B[cur2];
+  const all=D.matrix_all.filter(r=>r.country===cur2);
+  const arp={};all.forEach(r=>arp[r.game]=r.arpdau);
+  const rows=D.matrix_new.filter(r=>r.country===cur2&&(r.reg_uv||0)>0).map(r=>({...r,arpdau:arp[r.game]??null}));
+  quad("c-quad2",rows,"reg_d1","arpdau","reg_uv",b.new_d1,b.arpdau,"新用户次留率%","ARPDAU $/千DAU（该国该游戏）","30天注册UV",MIN_REG);
+  // alloc bar
+  const al=rows.filter(r=>r.reg_uv>=50).sort((a,b2)=>b2.reg_uv-a.reg_uv).slice(0,14);
+  mkChart("c-newalloc").setOption({...dark,tooltip:{trigger:"axis",backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"}},
+    legend:{textStyle:{color:"#8b98ad"},top:0},
+    grid:{left:50,right:56,top:34,bottom:70},
+    xAxis:{type:"category",data:al.map(r=>r.game),...axis,axisLabel:{color:"#8b98ad",rotate:38,fontSize:10.5}},
+    yAxis:[{type:"value",name:"注册份额",...axis,axisLabel:{formatter:v=>(v*100).toFixed(0)+"%",color:"#8b98ad"}},
+           {type:"value",name:"次留÷大盘",...axis,splitLine:{show:false}}],
+    series:[{name:"新用户注册份额",type:"bar",data:al.map(r=>r.share_reg),itemStyle:{color:"#2f5fb8",borderRadius:[3,3,0,0]},barWidth:16},
+      {name:"次留相对大盘(×)",type:"line",yAxisIndex:1,data:al.map(r=>r.reg_d1!=null&&b.new_d1?+(r.reg_d1/b.new_d1).toFixed(2):null),lineStyle:{color:"#3ecf8e",width:2.5},itemStyle:{color:"#3ecf8e"},symbolSize:7,
+       markLine:{silent:true,symbol:"none",lineStyle:{type:"dashed",color:"#f7c948"},data:[{yAxis:1}],label:{color:"#f7c948",formatter:"大盘=1"}}}]});
+  const tb=rows.sort((a,b2)=>(b2.reg_uv||0)-(a.reg_uv||0)).slice(0,16);
+  document.getElementById("t2").innerHTML=`<table><tr><th>游戏</th><th>品类</th><th>30天注册UV</th><th>注册份额</th><th>新用户次留</th><th>vs大盘</th><th>新用户7留</th><th>ARPDAU</th><th>建议</th></tr>`+
+   tb.map(r=>{const[a,cls]=actionNew(r,b);const rd=r.reg_d1!=null&&b.new_d1?r.reg_d1/b.new_d1:null;
+   return `<tr><td>${r.game}</td><td><span style="color:${CAT_COLOR[r.cat]}">${r.cat}</span></td><td>${fmt(r.reg_uv)}</td><td>${pc(r.share_reg)}</td><td>${pc(r.reg_d1)}</td><td class="${rd>=1?'good':'bad'}">${rd?rd.toFixed(2)+"×":"–"}</td><td>${pc(r.reg_d7)}</td><td>${r.arpdau!=null?"$"+r.arpdau:"–"}</td><td><span class="tag ${cls}">${a}</span></td></tr>`}).join("")+`</table>`;
+  const up=tb.filter(r=>actionNew(r,b)[0]==="新量加码").map(r=>r.game);
+  const dn=tb.filter(r=>actionNew(r,b)[0]==="新量削减").map(r=>r.game);
+  document.getElementById("s2-insight").innerHTML=`<b>${cur2}新量读数：</b>新用户次留显著超大盘、值得把新用户入口/推荐位向其倾斜：<b class="good">${up.slice(0,5).join("、")||"无"}</b>；吃了较大新量份额但承接差（次留&lt;大盘80%）、应削减曝光：<b class="bad">${dn.slice(0,5).join("、")||"无"}</b>。注意：新用户次留大盘只有 ${pc(b.new_d1)}，远低于活跃口径 ${pc(b.d1)} —— 新用户承接是全局最大短板，选品和入口设计都要围绕"第一天留住人"。`;
+}
+renderS2();
+
+/* ========== S3 品类 ========== */
+let cur3="泰国";
+const tabs3=document.getElementById("tabs3");
+COUNTRIES.forEach(c=>{
+  const el=document.createElement("div");el.className="tab"+(c===cur3?" on":"");el.textContent=c;
+  el.onclick=()=>{cur3=c;[...tabs3.children].forEach(x=>x.classList.toggle("on",x.textContent===c));renderS3()};
+  tabs3.appendChild(el);
+});
+function catQ(r,b){
+  const rd=r.d7!=null&&b.d7?r.d7/b.d7:0, ra=r.arpdau!=null&&b.arpdau?r.arpdau/b.arpdau:0;
+  return 0.5*rd+0.5*ra;
+}
+function actionCat(r,b){
+  if(r.act_uv<MIN_UV) return ["样本不足","t-na"];
+  const q=catQ(r,b);
+  if(q>=1.05&&(r.share_uv||0)<0.25) return ["加大供给","t-up"];
+  if(q>=0.95) return ["保持","t-keep"];
+  if(q<0.95&&(r.share_uv||0)>=0.15) return ["收缩","t-down"];
+  return ["定向试点","t-fix"];
+}
+function renderS3(){
+  const b=B[cur3];
+  const rows=D.cats.filter(r=>r.country===cur3&&r.act_uv>0);
+  // quadrant
+  const c=mkChart("c-quad3");
+  c.setOption({...dark,tooltip:{backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"},
+    formatter:p=>`<b>${p.data.name}</b><br/>供给(活跃份额): ${(p.data.value[0]*100).toFixed(1)}%<br/>质量指数: ${p.data.value[1].toFixed(2)}（1=大盘）<br/>在架 ${p.data.value[2]} 款｜7留 ${pc(p.data.d7)}｜ARPDAU $${p.data.arp??"–"}`},
+   grid:{left:56,right:30,top:30,bottom:44},
+   xAxis:{type:"value",name:"供给：活跃流量份额",nameLocation:"middle",nameGap:30,nameTextStyle:{color:"#8b98ad"},...axis,axisLabel:{formatter:v=>(v*100).toFixed(0)+"%",color:"#8b98ad"}},
+   yAxis:{type:"value",name:"需求质量指数（1=大盘）",nameTextStyle:{color:"#8b98ad"},...axis},
+   series:[{type:"scatter",
+     data:rows.map(r=>({name:r.cat,value:[r.share_uv,+catQ(r,b).toFixed(3),r.n_games],d7:r.d7,arp:r.arpdau,
+       itemStyle:{color:CAT_COLOR[r.cat]||"#8b98ad",opacity:.9,borderColor:"#fff",borderWidth:.8}})),
+     symbolSize:d=>10+d[2]*2.2,
+     label:{show:true,formatter:p=>p.data.name,position:"top",color:"#c9d6ea",fontSize:11.5},
+     markLine:{silent:true,symbol:"none",lineStyle:{type:"dashed",color:"#5b6778"},label:{color:"#8b98ad"},
+       data:[{yAxis:1,label:{formatter:"质量=大盘"}},{xAxis:0.15,label:{formatter:"供给15%"}}]}}]});
+  // share bars
+  const sr=[...rows].sort((a,b2)=>b2.share_uv-a.share_uv);
+  mkChart("c-catshare").setOption({...dark,tooltip:{trigger:"axis",backgroundColor:"#1a2234",borderColor:"#2a3550",textStyle:{color:"#e6edf7"},valueFormatter:v=>v==null?"–":(v*100).toFixed(1)+"%"},
+   legend:{textStyle:{color:"#8b98ad"},top:0},
+   grid:{left:50,right:20,top:34,bottom:56},
+   xAxis:{type:"category",data:sr.map(r=>r.cat),...axis,axisLabel:{color:"#8b98ad",rotate:24,fontSize:11}},
+   yAxis:{type:"value",...axis,axisLabel:{formatter:v=>(v*100).toFixed(0)+"%",color:"#8b98ad"}},
+   series:[
+    {name:"新增份额",type:"bar",data:sr.map(r=>r.share_reg),itemStyle:{color:"#a78bfa",borderRadius:[3,3,0,0]},barWidth:14},
+    {name:"活跃份额",type:"bar",data:sr.map(r=>r.share_uv),itemStyle:{color:"#2f5fb8",borderRadius:[3,3,0,0]},barWidth:14},
+    {name:"收入份额",type:"bar",data:sr.map(r=>r.share_rev),itemStyle:{color:"#3ecf8e",borderRadius:[3,3,0,0]},barWidth:14},
+   ]});
+  const tb=[...rows].sort((a,b2)=>b2.act_uv-a.act_uv);
+  document.getElementById("t3").innerHTML=`<table><tr><th>品类</th><th>在架</th><th>新增份额</th><th>活跃份额</th><th>收入份额</th><th>7留</th><th>ARPDAU</th><th>RQ</th><th>质量指数</th><th>选品结论</th></tr>`+
+   tb.map(r=>{const[a,cls]=actionCat(r,b);const q=catQ(r,b);
+   return `<tr><td><span style="color:${CAT_COLOR[r.cat]||'#8b98ad'}">${r.cat}</span></td><td>${r.n_games}</td><td>${pc(r.share_reg)}</td><td>${pc(r.share_uv)}</td><td>${pc(r.share_rev)}</td><td>${pc(r.d7)}</td><td>$${r.arpdau??"–"}</td><td>${r.rq??"–"}</td><td class="${q>=1?'good':(q>=0.95?'mid':'bad')}">${q.toFixed(2)}</td><td><span class="tag ${cls}">${a}</span></td></tr>`}).join("")+`</table>`;
+  const up=tb.filter(r=>actionCat(r,b)[0]==="加大供给").map(r=>r.cat);
+  const dn=tb.filter(r=>actionCat(r,b)[0]==="收缩").map(r=>r.cat);
+  const kp=tb.filter(r=>actionCat(r,b)[0]==="保持").map(r=>r.cat);
+  const fx=tb.filter(r=>actionCat(r,b)[0]==="定向试点").map(r=>r.cat);
+  document.getElementById("s3-insight").innerHTML=`<b>${cur3}选品结论：</b><span class="good">加大供给：${up.join("、")||"无"}</span> ｜ <span style="color:#4d9fff">保持：${kp.join("、")||"无"}</span> ｜ <span class="bad">收缩：${dn.join("、")||"无"}</span> ｜ <span class="mid">定向试点：${fx.join("、")||"无"}</span>。"加大供给"意味着引入同品类新游戏、给推荐位；"收缩"不等于全下架 —— 先淘汰品类内 RQ 最低的长尾，保留头部。`;
+  const _cm=window.DATA.cat_map||[];
+  const _inf=_cm.filter(x=>(x.src||"").indexOf("推断")>=0).length;
+  const _infPct=_cm.length?Math.round(_inf/_cm.length*100):0;
+  document.getElementById("s3-caveat").innerHTML=`<b>⚠ 使用护栏：</b>① 本页约 ${_infPct}% 品类的归属来自游戏名推断（表格中 ⓘ 标注），落地前建议先补齐官方三级品类；② "其他"桶内含 ${tb.find(r=>r.cat==="其他")?.n_games??0} 款长尾游戏，收缩动作应下钻到单款执行；③ 单国样本量较小的市场，结论建议连续观察 2 个周期再执行。`;
+}
+renderS3();
+
+/* nav highlight */
+const secs=[...document.querySelectorAll("section")];
+const links=[...document.querySelectorAll("nav a")];
+window.addEventListener("scroll",()=>{
+  let cur=secs[0].id;
+  secs.forEach(s=>{if(s.getBoundingClientRect().top<120)cur=s.id});
+  links.forEach(l=>l.classList.toggle("on",l.getAttribute("href")==="#"+cur));
+});
+</script>
+</body>
+</html>

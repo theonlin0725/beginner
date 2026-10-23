@@ -1,0 +1,2013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>游戏商业视觉 SOP 控制台</title>
+<style>
+  :root {
+    --paper: #f4e3bf;
+    --paper-soft: #fff7e8;
+    --ink: #171512;
+    --ink-soft: #5d5348;
+    --line: #171512;
+    --gold: #e3a72f;
+    --red: #c94732;
+    --green: #2f7652;
+    --blue: #2d6f9f;
+    --violet: #7557a8;
+    --shadow: 5px 5px 0 #171512;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 16% 12%, rgba(227, 167, 47, .24) 0 18%, transparent 18.5%),
+      radial-gradient(circle at 84% 6%, rgba(47, 118, 82, .16) 0 14%, transparent 14.5%),
+      linear-gradient(180deg, #f8ecd2 0%, var(--paper) 100%);
+    color: var(--ink);
+    font-family: Barlow, "Avenir Next", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .25;
+    mix-blend-mode: multiply;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(23,21,18,.04) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(23,21,18,.035) 0 1px, transparent 1px 6px);
+    z-index: 20;
+  }
+
+  a { color: inherit; }
+  button { font: inherit; }
+
+  .shell {
+    width: min(1440px, calc(100% - 36px));
+    margin: 0 auto;
+    padding: 28px 0 64px;
+  }
+
+  /* ── Masthead ── */
+  .masthead {
+    border: 2px solid var(--line);
+    background: var(--paper-soft);
+    box-shadow: var(--shadow);
+    min-height: 240px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .masthead-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    min-height: 240px;
+    flex: 1;
+  }
+
+  .hero-copy { padding: clamp(22px, 4vw, 48px); position: relative; z-index: 1; }
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid var(--ink);
+    padding: 7px 12px;
+    background: var(--gold);
+    box-shadow: 3px 3px 0 var(--ink);
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    font-weight: 900;
+  }
+
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(2.6rem, 6.5vw, 6.4rem);
+    line-height: .84;
+    margin: 22px 0 14px;
+    letter-spacing: -.075em;
+    max-width: 12ch;
+  }
+
+  .lead {
+    max-width: 680px;
+    font-size: clamp(.95rem, 1.4vw, 1.18rem);
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  .law-strip {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(100px, 1fr));
+    gap: 10px;
+    max-width: 780px;
+  }
+  .law {
+    border: 2px solid var(--ink);
+    padding: 10px 11px;
+    min-height: 78px;
+    background: #fffaf0;
+  }
+  .law strong { display: block; font-size: .92rem; margin-bottom: 4px; }
+  .law span { display: block; color: var(--ink-soft); font-size: .76rem; line-height: 1.35; }
+  .law:nth-child(2) { background: #f8cf6a; }
+  .law:nth-child(3) { background: #b8d6c8; }
+  .law:nth-child(4) { background: #e8b3a6; }
+
+  .poster-scale {
+    position: relative;
+    margin: 24px 24px 24px 0;
+    border-left: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mini-poster {
+    width: 130px;
+    aspect-ratio: 9 / 16;
+    border: 2px solid var(--ink);
+    box-shadow: var(--shadow);
+    background:
+      linear-gradient(180deg, #18233b 0 22%, #d85443 22% 36%, #f0b23e 36% 48%, #19233a 48% 100%);
+    position: sticky;
+    top: 22px;
+    overflow: hidden;
+  }
+  .mini-poster::before {
+    content: "";
+    position: absolute;
+    inset: 15% 12% 16%;
+    background:
+      linear-gradient(110deg, transparent 0 38%, rgba(255,255,255,.88) 38% 43%, transparent 43% 100%),
+      radial-gradient(circle at 52% 48%, #f4e3bf 0 10%, transparent 10.5%),
+      linear-gradient(145deg, transparent 0 28%, rgba(47,118,82,.95) 28% 47%, transparent 47% 100%);
+    border: 2px solid rgba(23,21,18,.35);
+  }
+  .mini-poster::after {
+    content: "SOP";
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    font-size: 2.4rem;
+    line-height: .8;
+    font-weight: 1000;
+    color: #fff7e8;
+    text-shadow: 2px 2px 0 var(--ink);
+  }
+
+  /* ── Format Adapter Switcher ── */
+  .adapter-switcher {
+    border: 2px solid var(--line);
+    background: var(--ink);
+    box-shadow: var(--shadow);
+    padding: 18px clamp(18px, 3vw, 36px);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+  .adapter-switcher .label {
+    color: rgba(255,247,232,.65);
+    font-size: .78rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .adapter-tabs {
+    display: flex;
+    gap: 0;
+    border: 2px solid rgba(255,247,232,.4);
+    flex: 1;
+  }
+  .adapter-tab {
+    flex: 1;
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: rgba(255,247,232,.6);
+    padding: 11px 16px;
+    font-size: .9rem;
+    font-weight: 900;
+    cursor: pointer;
+    letter-spacing: .04em;
+    transition: background .18s, color .18s;
+    text-align: center;
+    border-right: 2px solid rgba(255,247,232,.2);
+  }
+  .adapter-tab:last-child { border-right: none; }
+  .adapter-tab:hover { background: rgba(255,247,232,.1); color: rgba(255,247,232,.9); }
+  .adapter-tab[aria-pressed="true"] {
+    background: var(--gold);
+    color: var(--ink);
+  }
+  .adapter-hint {
+    color: rgba(255,247,232,.5);
+    font-size: .78rem;
+    white-space: nowrap;
+  }
+
+  /* ── Step 0 Intake Gate ── */
+  .intake {
+    margin-top: 22px;
+    border: 2px solid var(--line);
+    background: #fff7e8;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .intake-head {
+    display: grid;
+    grid-template-columns: 76px 1fr auto;
+    border-bottom: 2px solid var(--line);
+    align-items: stretch;
+  }
+  .intake-no {
+    display: grid;
+    place-items: center;
+    border-right: 2px solid var(--line);
+    background: var(--red);
+    color: #fff7e8;
+    font-family: Georgia, serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+  }
+  .intake-title { padding: 12px 16px; }
+  .intake-title h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: clamp(1.2rem, 2.2vw, 2rem);
+    letter-spacing: -.04em;
+  }
+  .intake-title p { margin: 4px 0 0; color: var(--ink-soft); font-size: .86rem; line-height: 1.45; }
+  .intake-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 18px;
+    border-left: 2px solid var(--line);
+    font-weight: 900;
+    font-size: .9rem;
+    letter-spacing: .04em;
+  }
+  .intake-status .dot {
+    width: 14px; height: 14px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    background: var(--red);
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .intake-status[data-state="ok"] { background: #c8e6cc; }
+  .intake-status[data-state="ok"] .dot { background: var(--green); }
+  .intake-status[data-state="incomplete"] { background: #f5d3cc; }
+
+  .intake-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 16px;
+  }
+  .intake-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 2px solid var(--ink);
+    background: var(--paper-soft);
+    padding: 11px 12px 12px;
+    box-shadow: 3px 3px 0 rgba(23,21,18,.3);
+  }
+  .intake-field.required { background: #fff5e0; }
+  .intake-field.optional { background: #f0f0e8; }
+  .fld-name {
+    font-weight: 900;
+    font-size: .92rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fld-name em {
+    font-style: normal;
+    font-size: .68rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border: 1.5px solid var(--ink);
+    padding: 2px 6px;
+    background: var(--gold);
+  }
+  .intake-field.optional .fld-name em { background: #cfcfcf; }
+  .fld-hint { color: var(--ink-soft); font-size: .76rem; line-height: 1.4; }
+  .intake-field input[type="text"] {
+    border: 2px solid var(--ink);
+    background: #fffdf6;
+    padding: 8px 10px;
+    font: inherit;
+    font-size: .92rem;
+    box-shadow: inset 2px 2px 0 rgba(23,21,18,.06);
+  }
+  .intake-field input[type="text"]:focus {
+    outline: none;
+    background: #fff;
+    box-shadow: inset 2px 2px 0 var(--gold);
+  }
+
+  .fld-pick {
+    display: grid;
+    gap: 6px;
+  }
+  .fld-pick input[type="file"] {
+    font-size: .76rem;
+  }
+  .fld-preview {
+    display: grid;
+    place-items: center;
+    border: 2px dashed rgba(23,21,18,.45);
+    background: #fffdf6;
+    color: var(--ink-soft);
+    font-size: .76rem;
+    text-align: center;
+    padding: 10px;
+    min-height: 92px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+  }
+  .fld-preview[data-shape="square"] { aspect-ratio: 1/1; max-width: 140px; justify-self: start; }
+  .fld-preview[data-shape="rect"] { aspect-ratio: 16/9; }
+  .fld-preview.has-img .ph { display: none; }
+
+  .intake-foot {
+    background: var(--ink);
+    color: #fff3d8;
+    padding: 11px 16px;
+    font-size: .85rem;
+    border-top: 2px solid var(--line);
+  }
+  .intake-foot.ok { background: var(--green); color: #fff; }
+
+  /* ── Global Strategy Section ── */
+  .global-section {
+    margin-bottom: 22px;
+    border-top: 4px solid var(--violet);
+  }
+  .global-section .section-no { color: var(--paper-soft); }
+  .lever-h {
+    margin: 6px 0 10px;
+    font-family: Georgia, serif;
+    font-size: 1.1rem;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    border-left: 4px solid var(--violet);
+    padding: 4px 0 4px 10px;
+    background: linear-gradient(90deg, rgba(117,87,168,.08), transparent 60%);
+  }
+  .rule-card {
+    border: 2px solid var(--ink);
+    background: #ede4f5;
+    box-shadow: 3px 3px 0 var(--ink);
+    padding: 14px 16px;
+  }
+  .rule-formula {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px dashed rgba(23,21,18,.35);
+  }
+  .formula-big {
+    font-family: Georgia, serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+    letter-spacing: -.02em;
+    font-weight: 900;
+  }
+  .formula-sub {
+    font-size: .85rem;
+    color: var(--ink-soft);
+  }
+  .rule-list {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+    font-size: .88rem;
+  }
+  .rule-list b { color: var(--ink); }
+
+  @media (max-width: 760px) {
+    .intake-head { grid-template-columns: 56px 1fr; }
+    .intake-status { grid-column: 1 / -1; padding: 8px 16px; border-left: none; border-top: 2px solid var(--line); justify-content: flex-end; }
+    .intake-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Nav line ── */
+  .navline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 18px 0 0;
+  }
+  .navline a {
+    text-decoration: none;
+    border: 2px solid var(--ink);
+    background: var(--paper-soft);
+    padding: 8px 12px;
+    font-weight: 900;
+    box-shadow: 3px 3px 0 var(--ink);
+    transition: transform .16s ease, box-shadow .16s ease;
+    font-size: .85rem;
+  }
+  .navline a:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+
+  /* ── Workspace ── */
+  .workspace {
+    display: block;
+  }
+  /* SUMMARY 摘要面板 — 2026-06-05 改版后放到页面最底部，全宽显示 */
+  .summary {
+    display: block !important;
+    position: static !important;
+    margin-top: 26px;
+  }
+  /* 准入门状态徽章 / 提示尾栏 — 2026-06-05 改版后默认隐藏（DOM 保留供 JS 写入） */
+  .intake-status,
+  .intake-foot { display: none !important; }
+
+  /* ── 构图的方法 · 左右两栏父容器（参考 .intake-grid） ── */
+  .composition-method-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 18px;
+    padding: 16px;
+  }
+  .composition-method-col {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border: 2px solid var(--ink);
+    background: var(--paper-soft);
+    padding: 14px;
+    box-shadow: 3px 3px 0 rgba(23,21,18,.3);
+  }
+  .composition-method-col > h3 {
+    margin: 0 0 4px;
+    font-family: Georgia, serif;
+    font-size: 1.1rem;
+    letter-spacing: -.02em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--ink);
+  }
+  /* 左右栏内嵌 .section 时收一下边距，避免双重边框过重 */
+  .composition-method-col .section { margin-bottom: 0; box-shadow: none; }
+  /* 仅在小屏（< 760px）退化为单列，1100px 以下保留左右两栏（避免 IDE 内嵌浏览器误判） */
+  @media (max-width: 760px) {
+    .composition-method-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── Section ── */
+  .section {
+    border: 2px solid var(--line);
+    background: rgba(255, 250, 240, .92);
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+  }
+  .section-head {
+    display: grid;
+    grid-template-columns: 76px 1fr;
+    border-bottom: 2px solid var(--line);
+    min-height: 66px;
+  }
+  .section-no {
+    display: grid;
+    place-items: center;
+    border-right: 2px solid var(--line);
+    background: var(--ink);
+    color: var(--paper-soft);
+    font-family: Georgia, serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+  }
+  .section-title { padding: 12px 16px; }
+  .section-title h2 {
+    margin: 0;
+    font-family: Georgia, serif;
+    font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+    letter-spacing: -.04em;
+  }
+  .section-title p { margin: 4px 0 0; color: var(--ink-soft); line-height: 1.4; font-size: .88rem; }
+
+  .content { padding: 16px; }
+  .option-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .option-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .option-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .option-grid.single { grid-template-columns: 1fr; }
+
+  .option {
+    appearance: none;
+    text-align: left;
+    border: 2px solid var(--ink);
+    background: var(--paper-soft);
+    color: var(--ink);
+    padding: 12px 12px 11px;
+    min-height: 90px;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 3px 3px 0 rgba(23,21,18,.35);
+    transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+  }
+  .option:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 rgba(23,21,18,.6); }
+  .option[aria-pressed="true"] { background: var(--gold); box-shadow: 5px 5px 0 var(--ink); }
+  .option strong { display: block; font-size: .94rem; margin-bottom: 5px; }
+  .option span { display: block; color: var(--ink-soft); font-size: .8rem; line-height: 1.38; }
+  .option[aria-pressed="true"] span { color: rgba(23,21,18,.78); }
+  .option small {
+    display: inline-block;
+    margin-top: 7px;
+    font-size: .66rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 900;
+    border-top: 2px solid rgba(23,21,18,.35);
+    padding-top: 4px;
+  }
+
+  .ratio-card {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+  .shape {
+    width: 44px;
+    border: 2px solid var(--ink);
+    background: var(--blue);
+    box-shadow: 3px 3px 0 var(--ink);
+    justify-self: center;
+  }
+  .shape.r916 { aspect-ratio: 9/16; height: 62px; width: auto; }
+  .shape.r23  { aspect-ratio: 2/3;  height: 62px; width: auto; background: var(--green); }
+  .shape.r34  { aspect-ratio: 3/4;  height: 62px; width: auto; background: var(--red); }
+  .shape.r45  { aspect-ratio: 4/5;  height: 62px; width: auto; background: var(--gold); }
+  .shape.r169 { aspect-ratio: 16/9; height: 42px; width: 74px; background: var(--violet); }
+  .shape.r53  { aspect-ratio: 5/3;  height: 42px; width: 70px; background: var(--blue); }
+  .shape.r32  { aspect-ratio: 3/2;  height: 42px; width: 63px; background: var(--green); }
+  .shape.r35  { aspect-ratio: 3.5/1; height: 24px; width: 84px; background: var(--gold); }
+  .shape.r52  { aspect-ratio: 5.2/1; height: 18px; width: 94px; background: var(--red); }
+  .shape.r81  { aspect-ratio: 8/1;   height: 12px; width: 96px; background: var(--violet); }
+
+  .split-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .split-card {
+    border: 2px solid var(--ink);
+    padding: 15px;
+    background: #fffaf0;
+    min-height: 230px;
+  }
+  .split-card h3 { margin: 0 0 10px; font-family: Georgia, serif; font-size: 1.42rem; }
+  .split-card ul { margin: 0; padding-left: 17px; color: var(--ink-soft); line-height: 1.6; font-size: .86rem; }
+  .split-card.proportion { background: #f6cf6f; }
+  .split-card.expression { background: #b8d6c8; }
+
+  .matrix { overflow-x: auto; border: 2px solid var(--ink); background: var(--paper-soft); }
+  table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  th, td { border: 1px solid rgba(23,21,18,.28); padding: 9px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--ink); color: var(--paper-soft); font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; }
+  td { font-size: .84rem; color: var(--ink-soft); }
+  td strong { color: var(--ink); }
+
+  /* ── Summary panel ── */
+  .summary {
+    position: sticky;
+    top: 22px;
+    border: 2px solid var(--line);
+    background: #fffaf0;
+    box-shadow: var(--shadow);
+    z-index: 5;
+  }
+  .summary-head {
+    padding: 13px 15px;
+    border-bottom: 2px solid var(--line);
+    background: var(--ink);
+    color: var(--paper-soft);
+  }
+  .summary-head h2 { margin: 0; font-family: Georgia, serif; font-size: 1.28rem; }
+  .summary-head p { margin: 4px 0 0; color: rgba(255,247,232,.7); font-size: .8rem; line-height: 1.4; }
+  .summary-body { padding: 12px; }
+  .selected-list { display: grid; gap: 7px; margin-bottom: 10px; }
+  .selected-item {
+    border: 2px solid rgba(23,21,18,.2);
+    padding: 7px 8px;
+    background: var(--paper-soft);
+    font-size: .8rem;
+    line-height: 1.35;
+  }
+  .selected-item b { display: block; color: var(--ink); margin-bottom: 2px; }
+  .selected-item span { color: var(--ink-soft); }
+
+  .brief {
+    margin: 0;
+    white-space: pre-wrap;
+    border: 2px solid var(--ink);
+    background: #171512;
+    color: #fff3d8;
+    padding: 11px;
+    font-size: .76rem;
+    line-height: 1.52;
+    max-height: 340px;
+    overflow: auto;
+  }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 9px; }
+  .action {
+    border: 2px solid var(--ink);
+    background: var(--gold);
+    padding: 9px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 var(--ink);
+    font-size: .86rem;
+  }
+  .action.secondary { background: var(--paper-soft); }
+
+  /* ── SOP steps ── */
+  .sop-steps {
+    counter-reset: step;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .step {
+    counter-increment: step;
+    border: 2px solid var(--ink);
+    background: var(--paper-soft);
+    padding: 13px;
+    min-height: 108px;
+    position: relative;
+  }
+  .step::before {
+    content: counter(step, decimal-leading-zero);
+    position: absolute;
+    right: 9px;
+    top: 7px;
+    font-family: Georgia, serif;
+    font-size: 2.1rem;
+    color: rgba(23,21,18,.12);
+    font-weight: 900;
+  }
+  .step b { display: block; margin-bottom: 7px; font-size: .9rem; }
+  .step span { color: var(--ink-soft); font-size: .84rem; line-height: 1.44; }
+
+  /* ── Footer ── */
+  .footer-note {
+    margin-top: 24px;
+    border: 2px solid var(--line);
+    background: var(--ink);
+    color: var(--paper-soft);
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: var(--shadow);
+  }
+  .footer-note code { color: #f6cf6f; font-size: .84rem; }
+
+  /* ── Adapter-specific sections ── */
+  .adapter-section { display: none; }
+  .adapter-section.active { display: block; }
+
+  /* ── Responsive ── */
+  @media (max-width: 1120px) {
+    .masthead-grid, .workspace { grid-template-columns: 1fr; }
+    .poster-scale { display: none; }
+    .summary { position: static; }
+  }
+  @media (max-width: 760px) {
+    .shell { width: min(100% - 20px, 1440px); padding-top: 14px; }
+    .law-strip, .option-grid, .option-grid.three, .option-grid.four,
+    .split-board, .sop-steps { grid-template-columns: 1fr; }
+    .section-head { grid-template-columns: 56px 1fr; }
+    .section-no { font-size: 1.3rem; }
+    .hero-copy { padding: 20px; }
+    h1 { font-size: clamp(2.4rem, 15vw, 4.2rem); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<main class="shell">
+
+  <!-- ── MASTHEAD ── -->
+  <section class="masthead">
+    <div class="masthead-grid">
+      <div class="hero-copy">
+        <div class="kicker">游戏素材 SOP 控制台 · v5.0 · 2026-06-05</div>
+        <nav class="navline" aria-label="页面导航">
+          <a href="#intake">必备素材</a>
+          <a href="#global-levers">全局策略</a>
+          <a href="#composition-method">构图的方法</a>
+          <a href="#sop">生产流程</a>
+          <a href="#checklist">输出速查表</a>
+        </nav>
+      </div>
+      <aside class="poster-scale" aria-hidden="true">
+        <div class="mini-poster"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ── STEP 0：素材准入门 ── -->
+  <section class="intake" id="intake" aria-label="Step 0 素材准入门">
+    <div class="intake-head">
+      <div class="intake-no">00</div>
+      <div class="intake-title">
+        <h2>Step 0 · 素材准入门</h2>
+        <p>生成图前的硬门槛。任一必选项缺失，下方所有选项流程都不应被采纳。AI 不允许靠图像识别猜游戏名。</p>
+      </div>
+      <div class="intake-status" id="intakeStatus" data-state="incomplete">
+        <span class="dot"></span>
+        <span class="txt">未通过</span>
+      </div>
+    </div>
+    <div class="intake-grid">
+      <label class="intake-field required">
+        <span class="fld-name">游戏名字 <em>必选</em></span>
+        <input type="text" id="in-name" placeholder="例如：Royal Match / Come Match / 你的游戏" autocomplete="off" />
+        <span class="fld-hint">用于 DNA 卡 / 标题排版 / Logo 安全区</span>
+      </label>
+      <label class="intake-field required">
+        <span class="fld-name">游戏类型 <em>必选</em></span>
+        <select id="in-gametype">
+          <option value="">— 请选择 —</option>
+          <option value="match3">三消 Match-3</option>
+          <option value="puzzle">解谜 Puzzle</option>
+          <option value="rescue">救援 Rescue</option>
+          <option value="brain_teaser">脑筋急转弯 Brain Teaser</option>
+          <option value="idle">放置 Idle</option>
+          <option value="merge">合成 Merge</option>
+          <option value="solitaire">纸牌 Solitaire</option>
+          <option value="word">文字 Word</option>
+          <option value="shooter">射击 Shooter</option>
+          <option value="racing">赛车 Racing</option>
+          <option value="rpg">RPG / 冒险</option>
+          <option value="strategy">策略 Strategy</option>
+          <option value="simulation">模拟经营 Simulation</option>
+          <option value="casino">博彩 Casino / Slots</option>
+          <option value="sports">体育 Sports</option>
+          <option value="moba">MOBA / 竞技</option>
+          <option value="card">卡牌 Card</option>
+          <option value="tower_defense">塔防 Tower Defense</option>
+          <option value="other">其他</option>
+        </select>
+        <span class="fld-hint">用于 subject_type 路由 / 玩法 Fidelity 自检 / Banner 模板推荐</span>
+      </label>
+      <label class="intake-field required">
+        <span class="fld-name">游戏 ICON <em>必选 · 1:1</em></span>
+        <span class="fld-pick">
+          <input type="file" id="in-icon" accept="image/*" />
+          <span class="fld-preview" id="prev-icon" data-shape="square"><span class="ph">点击选择正方形 ICON</span></span>
+        </span>
+        <span class="fld-hint">仅作 reference-only：角色资产剥离 / 风格 DNA 锚定。默认禁止画进封面/海报。</span>
+      </label>
+      <label class="intake-field required">
+        <span class="fld-name">游戏画面截图 <em>必选 · 长方形</em></span>
+        <span class="fld-pick">
+          <input type="file" id="in-shot" accept="image/*" />
+          <span class="fld-preview" id="prev-shot" data-shape="rect"><span class="ph">点击选择真实游戏内截图</span></span>
+        </span>
+        <span class="fld-hint">仅作 reference-only：玩法 Fidelity 基准。默认禁止复刻截图 UI / 底部导航 / loading bar。</span>
+      </label>
+    </div>
+    <div class="intake-foot" id="intakeFoot">
+      ⚠️ <span id="intakeMsg">请补齐 4 个必选项后，再进入下方比例层与表现层选项。</span>
+    </div>
+  </section>
+
+  <!-- ── GLOBAL: 差异化矩阵 + 分层原则 (横向 + 竖版通用) ── -->
+  <section class="section global-section" id="global-levers" aria-label="差异化矩阵 · 4 杠杆 + 分层">
+    <div class="section-head">
+      <div class="section-no" style="background:var(--violet)">★</div>
+      <div class="section-title">
+        <h2>全局策略</h2>
+        <p>正面约束（4杠杆差异化） + 负面禁止（防玩法误导） = 完整构图策略，这层是全局抽象规则，与「横向 / 竖版」无关。</p>
+      </div>
+    </div>
+    <div class="content">
+
+      <h3 class="lever-h">A. 4 杠杆定义（永久不变 · 跨题材跨容器）</h3>
+      <div style="margin-bottom:10px;padding:10px 12px;border:2px solid var(--violet);background:#f5f0ff;font-size:.82rem;line-height:1.55">
+        <b>4 杠杆 vs 构图层的关系</b>：构图层(C1-C4)定义单张图的构图参数；4 杠杆(L1-L4)用于多方案差异化比对。<br>
+        映射：L1 镜头 ≈ C1 视角 ｜ L2 光线 = 全局表现因素·光影 ｜ L3 场景 = 叙事·世界容器 ｜ L4 占比 ≈ C3 面积分配
+      </div>
+      <div class="matrix" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th style="width:90px">杠杆</th><th>它管什么</th><th>取值池来源</th><th style="width:100px">构图层映射</th></tr></thead>
+          <tbody>
+            <tr><td><strong>L1 镜头</strong></td><td>视角与拍摄机位（决定观众的"位置"）</td><td>题材通用：仰角 / 俯视 / 过肩 / 特写 / 远景 / 等距悬浮 …</td><td>≈ C1 视角</td></tr>
+            <tr><td><strong>L2 光线</strong></td><td>戏剧性与情绪（决定观众的"心情"）</td><td>题材通用：暖光 / 冷暖对撞 / 黄金时刻 / 单光源剧院 …</td><td>全局·光影</td></tr>
+            <tr><td><strong>L3 场景</strong></td><td>世界容器（决定故事在"哪儿"发生）</td><td><details><summary><strong>L3来源说明</strong></summary><div style="text-align:left;margin-top:8px;padding:8px 10px;background:#f5f0ff;border-radius:6px;font-size:.8rem;line-height:1.6">L1/L2/L4 是数学层（跨题材通用），L3 是内容层（题材专属）。<br>L3 取值池 = 那个游戏自己的"世界设定清单"，换游戏 = 清空重来。<br><br>以「休闲皇室三消」为例：取值池 = 城堡庭院 / 华丽宴会厅 / 迷宫花园 / 魔法廊柱 / 皇室走廊 / 玻璃花房<br><br>方案 A 的 L3 = 宴会厅（暖光，角色在长桌前）<br>方案 B 的 L3 = 花园（冷暖对撞，角色在喷泉旁）<br>方案 C 的 L3 = 城堡走廊（顶光，角色在台阶上）<br>三个方案 L3 完全错开，但都落在同一个取值池里，保持家族感</div></details></td><td>叙事·世界</td></tr>
+            <tr><td><strong>L4 占比</strong></td><td>角色与玩法元素的画面权重（决定"谁是主角"）</td><td>题材通用：主导 / 平衡 / 玩法主导 / 缺席 / 群像</td><td>≈ C3 面积</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="lever-h">B. 强制差异化规则（数学约束 · 不可妥协）</h3>
+      <div class="rule-card">
+        <div class="rule-formula">
+          <span class="formula-big">每两个方案 · 至少错开 3 / 4 个杠杆</span>
+          <span class="formula-sub">否则视为「伪分叉」，必须返工</span>
+        </div>
+        <ul class="rule-list">
+          <li><b>为什么是 3 不是 2？</b>实证：只错开 2 个杠杆时，人眼扫过去仍觉得"是同一张图换动作"。</li>
+          <li><b>为什么是 3 不是 4？</b>4 个全错开会失去 DNA 一致性，跨方案没有家族感。</li>
+          <li><b>横向 / 竖版同样适用</b>：这是"做 N 个变体"的差异化数学，与容器比例无关。</li>
+        </ul>
+      </div>
+
+      <h3 class="lever-h" style="margin-top:18px">C. 负面禁止</h3>
+      <details style="margin:0 0 10px;border:2px solid var(--ink);background:#fff5e0">
+        <summary style="padding:8px 12px;cursor:pointer;font-weight:900;font-size:.85rem">📋 填表准则（什么内容该进 C 表？）</summary>
+        <div style="padding:10px 14px 12px;border-top:2px solid var(--ink);font-size:.82rem;line-height:1.65">
+          <b>入表门槛</b>：实证翻车 — <code>某个具体「杠杆 × 取值」 → 触发玩法误导 → CTR 高但留存崩 / 被认错品类</code>。仅"不好看"或"美学偏好"不达门槛。
+          <div style="margin-top:8px"><b>字段格式</b>（4 列）：</div>
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li><b>杠杆</b>：L1 镜头 / L2 光线 / L3 场景 / L4 占比 / <b>通用</b>（跨杠杆共振陷阱）</li>
+            <li><b>通用高危模式</b>：用一句话描述触发翻车的具体取值（如 "严格正交俯视网格"）</li>
+            <li><b>为什么危险</b>：会被误认成哪个品类（如 "暗示桌游 / 棋类"）</li>
+            <li><b>缓解方向</b>：怎么改写或破局（如 "改自由角度俯视，去掉网格线"）</li>
+          </ul>
+          <div style="margin-top:8px"><b>✅ 应进入</b>：①新发现的"杠杆 × 取值"翻车组合；②AI 模型新版本带来的新画错倾向；③跨杠杆共振陷阱（同时踩多个 → 暗示某品类）；④从 D 表晋升来的（多个题材都印证的翻车）</div>
+          <div style="margin-top:6px;color:#8b4513"><b>❌ 不该进入</b>：单游戏专属翻车（→ 进 D 表）｜取值池正面用法（→ 进 A 表）｜版式禁忌（→ 进 SOP ③ 8 项硬检查 P1-P8）｜审美主观偏好</div>
+        </div>
+      </details>
+      <div class="matrix" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th style="width:90px">杠杆</th><th>通用高危模式</th><th>为什么危险</th><th>缓解方向</th></tr></thead>
+          <tbody>
+            <tr><td><strong>L1</strong></td><td>严格正交俯视网格</td><td>暗示桌游 / 棋类</td><td>改自由角度俯视，去掉网格线</td></tr>
+            <tr><td><strong>L1</strong></td><td>过肩瞄准准星</td><td>暗示射击 / FPS</td><td>用第三人称跟随或前景虚化替代</td></tr>
+            <tr><td><strong>L3</strong></td><td>明确品类符号场景物：棋盘 / 牌桌 / 球桌 / 转盘 / 老虎机</td><td>直接被认成对应品类</td><td>换品类无关的环境，或用悬浮 / 抽象空间替代</td></tr>
+            <tr><td><strong>L3</strong></td><td>强写实办公 / 课堂 / 医院</td><td>暗示模拟经营或剧情解谜</td><td>非该品类则换抽象 / 奇幻 / 室外背景</td></tr>
+            <tr><td><strong>L4</strong></td><td>玩法元素以"精确网格阵列"排布</td><td>暗示策略 / 桌游</td><td>改散落 / 漂浮 / 聚合 / 喷发</td></tr>
+            <tr><td><strong>通用</strong></td><td>取值显著落入"非本品类品类符号"</td><td>CTR 高但留存崩</td><td>Step 8 玩法 Fidelity 自检必须扫一遍</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+
+      <!-- D → C 晋升路径 · 衔接说明 -->
+      <div style="margin:14px 0 12px;padding:11px 14px;border:2px dashed var(--violet);background:#f5f0ff;font-size:.82rem;line-height:1.6">
+        <b style="color:var(--violet)">🔄 C ↔ D 晋升路径</b>：D 表是<b>单题材实例</b>翻车（"《Come Match》专属"），C 表是<b>跨题材通用</b>翻车。
+        <div style="margin-top:6px"><b>晋升触发</b>：当 D 表里某个翻车被 <b>≥ 2 个不同题材的游戏</b>独立印证后 → 该行从「单题材专属」升级为「跨题材通用」 → 搬运到上方 C 表，并在 D 表保留作"案例溯源"。</div>
+        <div style="margin-top:4px;color:var(--ink-soft)">这是负面知识的"实证沉淀"机制：先在 D 表里积累具体翻车，等同样的坑被多次踩到，再固化成 C 表的通用禁忌。</div>
+      </div>
+
+      <h3 class="lever-h" style="margin-top:18px">D. 项目翻车账本（实证案例库）</h3>
+      <p style="margin:0 0 10px;font-size:.85rem;line-height:1.55;color:var(--ink-soft)">
+        每条记录 = 一次具体出图项目里被实证翻车的案例。"翻车风险"不只跟<b>题材</b>有关，还跟<b>目标人群 / 投放渠道 / 市场地区 / subject_type</b>等上下文有关——同一个取值在不同上下文里表现可能完全相反。
+        本表用 7 列结构记录每条翻车的<b>完整上下文坐标</b>，供后续同条件项目参考、并作为 C 表晋升的数据依据。
+      </p>
+
+      <details style="margin:0 0 12px;border:2px solid var(--ink);background:#fff5e0">
+        <summary style="padding:8px 12px;cursor:pointer;font-weight:900;font-size:.85rem">📋 字段说明 + 填表准则</summary>
+        <div style="padding:10px 14px 12px;border-top:2px solid var(--ink);font-size:.82rem;line-height:1.65">
+          <b>7 列字段</b>：
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li><b>项目 · 批次</b>：游戏名 + 版本 + 出图批次（精确到一次出图）</li>
+            <li><b>题材</b>：游戏品类（休闲三消 / 战棋 / 赛车 / RPG / brain teaser / ...）</li>
+            <li><b>人群 · 渠道 · 地区</b>：目标用户群 / 投放渠道（FB 买量 / App Store 应用图 / TikTok 短视频...）/ 市场地区（欧美 / 中国 / 中东...）</li>
+            <li><b>subject_type</b>：character / gameplay_object / hybrid / scenario_puzzle</li>
+            <li><b>杠杆 × 取值（命中翻车的具体组合）</b>：例 <code>C1=俯视棋盘 + L4=网格阵列</code></li>
+            <li><b>翻车证据</b>：CTR/留存/调研数据（如 "CTR 8.2% 但 D1 留存 14%（基准 22%），用户调研 70% 误以为是桌游"）</li>
+            <li><b>缓解方向 / 是否可晋升 C</b>：怎么改写避免翻车 + 是否已被多个题材独立印证（≥2 → 晋升 C 表）</li>
+          </ul>
+          <div style="margin-top:8px"><b>✅ 应进入</b>：①真实出图后实证翻车（有数据/调研支撑）；②单次案例就值得记录，不必等共性；③上下文越精确越有价值（同一个取值在不同人群/渠道里表现不同时，分两条记）</div>
+          <div style="margin-top:6px;color:#8b4513"><b>❌ 不该进入</b>：审美主观偏好（不达"实证翻车"门槛）｜未上线的纯设计阶段问题（→ 走 SOP ③ 8 项硬检查 P1-P8）｜跨题材已被多次印证的（→ 晋升 C 表）｜单纯的取值池正面用法（→ A 表 / DNA 表）</div>
+          <div style="margin-top:8px;padding:8px 10px;background:#fff;border-left:3px solid var(--violet);font-size:.8rem">
+            <b>历史预设警告</b>：旧版 D 表用"题材"做唯一分类轴，预设"什么算高危由本游戏的品类决定"。实战中翻车其实和<b>人群、渠道、地区、subject_type、市场上同期友商占位</b>都强相关——同一个画面在 35+ 女性休闲玩家身上是好的，在 25+ 男性硬核玩家身上可能直接翻车。新结构把这些维度都拉出来作为字段。
+          </div>
+        </div>
+      </details>
+
+      <div class="matrix">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:130px">项目 · 批次</th>
+              <th style="width:80px">题材</th>
+              <th style="width:140px">人群 · 渠道 · 地区</th>
+              <th style="width:90px">subject_type</th>
+              <th>杠杆 × 取值</th>
+              <th>翻车证据</th>
+              <th>缓解方向 / 可否晋升 C</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Come Match · 皇室三消<br>v? · 横版封面</strong></td>
+              <td>休闲三消</td>
+              <td>欧美 35+ 女性 / FB 买量 / 北美</td>
+              <td>character</td>
+              <td><code>C1 = 俯视棋盘</code></td>
+              <td>容易被认成桌游 / 棋类（实战观察，未补 CTR/留存数据）</td>
+              <td>改自由角度俯视，去掉网格线 ｜ 单题材印证，<b>暂未晋升</b></td>
+            </tr>
+            <tr>
+              <td><strong>Come Match · 皇室三消<br>v? · 横版封面</strong></td>
+              <td>休闲三消</td>
+              <td>欧美 35+ 女性 / FB 买量 / 北美</td>
+              <td>character</td>
+              <td><code>C3 = 玩法主导 ≤25% + L4 = 玩法元素精确网格阵列</code></td>
+              <td>暗示策略 / 桌游品类（实战观察，未补 CTR/留存数据）</td>
+              <td>改散落 / 漂浮 / 聚合 / 喷发排布 ｜ 单题材印证，<b>暂未晋升</b></td>
+            </tr>
+            <tr style="background:#f5f0ff">
+              <td><strong>SOP 控制台<br>v5.0 · 2026-06-05</strong></td>
+              <td>跨题材（元改造）</td>
+              <td>所有用户 / 学习控制台 / 跨地区</td>
+              <td>N/A（架构）</td>
+              <td>架构层而非画面层：<code>Banner 6 锁混淆"prompt 形式校验"和"构图设计原则"</code> + <code>D 表"题材专属"预设缺陷</code> + <code>subject_type 路由埋在硬检查表附录</code></td>
+              <td>预防式（非实证翻车）：用户在改造控制台时主动指出"硬检查表非常通用"+"D 表为什么是单游戏专属" → 暴露架构归位问题</td>
+              <td>归位修法：Banner 锁拆回构图层底线/表现层底线/P 表；D 表改 7 列上下文；subject_type 提升 ② ｜<b>晋升属性</b>：架构改造案例，不参与 C 表晋升</td>
+            </tr>
+            <tr style="background:rgba(0,0,0,0.02)">
+              <td colspan="7" style="text-align:center;color:var(--ink-soft);font-size:.82rem;font-style:italic;padding:14px">
+                ⬇️ 下一条新案例：填入完整 7 列上下文（项目/题材/人群·渠道·地区/subject_type/杠杆×取值/翻车证据/缓解方向）
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:14px;padding:11px 13px;border:2px solid var(--violet);background:#f5f0ff;font-size:.82rem;line-height:1.6">
+        <b style="color:var(--violet)">📦 取值池查询表（与翻车账本分离）</b>：当前游戏的「C1-C4 完整取值池」属于<b>设计参考</b>不属于<b>翻车证据</b>，不放在本表里。需要时请到对应游戏的 DNA 卡片或 brief 里查；本表只记录<b>具体翻车的杠杆 × 取值组合 + 完整上下文</b>。
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GLOBAL: 构图的方法（一级模块 · 左右两栏 · 2026-06-05 重构） ── -->
+  <section class="section global-section" id="composition-method" aria-label="构图的方法">
+    <div class="section-head">
+      <div class="section-no" style="background:var(--violet)">★</div>
+      <div class="section-title">
+        <h2>构图的方法</h2>
+        <p>一张图内部先拆成两层，互不干涉——构图层只管空间结构，表现层只管视觉风格。</p>
+      </div>
+    </div>
+    <div class="composition-method-grid">
+
+      <!-- ─────────── 左栏：构图层（C1-C4） + Format Adapter ─────────── -->
+      <div class="composition-method-col" id="composition-col-left">
+        <div style="border:2px solid var(--ink);padding:12px;background:var(--paper-soft)">
+          <h4 style="margin:0 0 6px;font-size:.9rem">构图层（C1-C4）</h4>
+          <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.6">
+            <li>C1 视角：跨格式通用（仰角/俯视/平视）</li>
+            <li>C2 版式骨架：强 Format Adapter 相关，横向常用中心对称/对角线，竖版常用纵向分割/留白优先</li>
+            <li>C3 面积分配：受画幅约束——同一组比例在横向和竖版里视觉感不同，需要调整阈值</li>
+            <li>C4 视觉动线：受画幅约束——横版从左到右，竖版从上到下，读图路径不同</li>
+          </ul>
+        </div>
+        <!-- Adapter switcher（从原位置搬入） -->
+        <div class="adapter-switcher" role="group" aria-label="选择格式 Adapter">
+          <div class="adapter-tabs">
+            <button class="adapter-tab" id="tab-cover" aria-pressed="false">横向封面图 · Horizontal Cover</button>
+            <button class="adapter-tab" id="tab-poster" aria-pressed="true">竖版海报图 · Vertical Poster</button>
+            <button class="adapter-tab" id="tab-banner" aria-pressed="false">Banner 长条 · Wide Banner</button>
+          </div>
+          <span class="adapter-hint" id="adapterHint"></span>
+        </div>
+
+        <!-- 三个 Adapter Section（从原 workspace 搬入） -->
+
+            <!-- ══════════════════════════════════════
+                 HORIZONTAL COVER ADAPTER
+            ══════════════════════════════════════ -->
+            <div class="adapter-section" id="section-cover">
+
+              <section class="section" id="ratio-cover">
+                <div class="section-head">
+                  <div class="section-no">01</div>
+                  <div class="section-title">
+                    <h2>选择画幅</h2>
+                    <p>横向封面推荐先出 16:9 母版：主体内容居中，左右只放可裁背景，兼容裁成 5:3 / 4:3 / 3:2。</p>
+                  </div>
+                </div>
+                <div class="content option-grid three">
+                  <button class="option ratio-card" data-group="cover_aspect_ratio" data-label="画幅" data-value="16:9" data-note="横版母版 1920×1080；中央 75% 安全区兼容裁成 5:3 / 4:3 / 3:2。" aria-pressed="true"><div class="shape r169"></div><div><strong>16:9 母版</strong><span>1920×1080 · 中央75%宽安全区<br>主体居中，两侧可裁背景</span><small>master</small></div></button>
+                  <button class="option ratio-card" data-group="cover_aspect_ratio" data-label="画幅" data-value="5:3" data-note="从 16:9 裁两侧得到；主体必须仍在中央安全区。" aria-pressed="false"><div class="shape r53"></div><div><strong>5:3</strong><span>从16:9裁左右得到</span><small>crop</small></div></button>
+                  <button class="option ratio-card" data-group="cover_aspect_ratio" data-label="画幅" data-value="4:3" data-note="最严格横版裁切；只保留 16:9 中央 75% 宽度。" aria-pressed="false"><div class="shape r32"></div><div><strong>4:3</strong><span>最严格裁切，只保留中央75%</span><small>safe</small></div></button>
+                  <button class="option ratio-card" data-group="cover_aspect_ratio" data-label="画幅" data-value="3:2" data-note="从 16:9 裁两侧得到；保留中央主体。" aria-pressed="false"><div class="shape r32"></div><div><strong>3:2</strong><span>从16:9裁左右得到</span><small>crop</small></div></button>
+                </div>
+              </section>
+
+              <section class="section" id="cover-composition">
+                <div class="section-head">
+                  <div class="section-no">02</div>
+                  <div class="section-title">
+                    <h2>构图层 · Composition Layer</h2>
+                    <p>4 维度统一框架：视角 → 版式骨架 → 面积分配 → 视觉动线。与竖版/Banner 同构，仅取值池受画幅约束。</p>
+                  </div>
+                </div>
+                <div class="content">
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C1 · 视角 Viewpoint</h4>
+                  <div class="option-grid four" style="margin-bottom:14px">
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="heroic_low_angle" data-note="仰角，英雄感最强，适合主角登场。" aria-pressed="true"><strong>仰角英雄镜</strong><span>仰视角度，英雄感与力量感。</span><small>C1</small></button>
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="eye_level_mid" data-note="平视中景，最自然的观看角度。" aria-pressed="false"><strong>平视中景</strong><span>自然观察角度，亲切感。</span><small>C1</small></button>
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="top_down_board" data-note="俯视棋盘感，⚠️ 高危——容易被认成桌游！慎用。" aria-pressed="false"><strong>俯视棋盘</strong><span>⚠️ 注意玩法误导风险。</span><small>⚠️ risk</small></button>
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="over_shoulder" data-note="过肩主观视角，增强沉浸感。" aria-pressed="false"><strong>过肩主观</strong><span>让玩家感觉自己在游戏里。</span><small>C1</small></button>
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="close_up_face" data-note="大特写面部，适合角色魅力宣传。" aria-pressed="false"><strong>大特写</strong><span>强调角色表情和细节。</span><small>C1</small></button>
+                    <button class="option" data-group="cover_C1_viewpoint" data-label="C1 视角" data-value="distant_silhouette" data-note="远景剪影，强化孤独感与世界规模。" aria-pressed="false"><strong>远景剪影</strong><span>小人物对大世界。</span><small>C1</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C2 · 版式骨架 Layout Skeleton</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="center_symmetric" data-note="主体居中，左右对称或镜像；最稳定的商业构图。" aria-pressed="true"><strong>中心对称</strong><span>主体居中，两侧环境对称</span><small>C2</small></button>
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="rule_of_thirds" data-note="主体偏三分线，留空间给标题或环境叙事。" aria-pressed="false"><strong>三分法偏置</strong><span>主体偏左/偏右，留叙事空间</span><small>C2</small></button>
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="diagonal_split" data-note="对角线切分画面，制造动感和冲突。" aria-pressed="false"><strong>对角线切分</strong><span>斜切制造动感与冲突</span><small>C2</small></button>
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="foreground_depth" data-note="前景虚化 + 中景主体 + 远景纵深，三层景深结构。" aria-pressed="false"><strong>前后景深</strong><span>前景框-中景主体-远景目标</span><small>C2</small></button>
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="left_heavy" data-note="主体集中在左半部，右侧留标题或环境。" aria-pressed="false"><strong>左重右轻</strong><span>主体左侧，右侧留空给信息</span><small>C2</small></button>
+                    <button class="option" data-group="cover_C2_layout" data-label="C2 版式" data-value="panoramic_spread" data-note="群像横向铺展，全宽叙事。" aria-pressed="false"><strong>全景铺展</strong><span>多角色/多元素横向展开</span><small>C2</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C3 · 面积分配 Area Weight</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="cover_C3_weight" data-label="C3 面积" data-value="hero_dominant_60" data-note="主角/载具占 60%+，背景 30%，文字 10%。商业冲击最强。" aria-pressed="true"><strong>主体主导 60%+</strong><span>角色/载具占 60%+ · 背景30% · 文字10%</span><small>60/30/10</small></button>
+                    <button class="option" data-group="cover_C3_weight" data-label="C3 面积" data-value="balanced_50" data-note="角色 50% / 环境 40% / 文字 10%。叙事感最强。" aria-pressed="false"><strong>角色-环境均衡</strong><span>角色50% · 环境40% · 文字10%</span><small>50/40/10</small></button>
+                    <button class="option" data-group="cover_C3_weight" data-label="C3 面积" data-value="gameplay_25" data-note="玩法元素主导，角色 ≤25%，适合玩法型宣传。" aria-pressed="false"><strong>玩法主导 ≤25%</strong><span>玩法元素60%+ · 角色≤25% · 文字15%</span><small>25/60/15</small></button>
+                    <button class="option" data-group="cover_C3_weight" data-label="C3 面积" data-value="world_dominant" data-note="环境 70% / 小人物 15% / 文字 15%。世界观宣传。" aria-pressed="false"><strong>世界主导</strong><span>环境70% · 小人物15% · 文字15%</span><small>15/70/15</small></button>
+                    <button class="option" data-group="cover_C3_weight" data-label="C3 面积" data-value="multi_character" data-note="多角色同框各占 15-25%，总人物占 60%+。" aria-pressed="false"><strong>多角色同框</strong><span>3-5 角色各占 15-25%</span><small>multi</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C4 · 视觉动线 Eye Flow</h4>
+                  <div class="option-grid three">
+                    <button class="option" data-group="cover_C4_flow" data-label="C4 动线" data-value="z_reading" data-note="Z 字路径：左上标题 → 右上角色 → 左下信息 → 右下 CTA。" aria-pressed="true"><strong>Z 字阅读</strong><span>左上→右上→左下→右下</span><small>Z</small></button>
+                    <button class="option" data-group="cover_C4_flow" data-label="C4 动线" data-value="center_radial" data-note="从中心主体向四周辐射，适合单一焦点。" aria-pressed="false"><strong>中心辐射</strong><span>一个焦点向四周发散</span><small>radial</small></button>
+                    <button class="option" data-group="cover_C4_flow" data-label="C4 动线" data-value="diagonal_15_35" data-note="15°-35° 对角线贯穿，适合速度与动作。" aria-pressed="false"><strong>对角线冲刺</strong><span>15°-35° 斜线制造速度感</span><small>diagonal</small></button>
+                    <button class="option" data-group="cover_C4_flow" data-label="C4 动线" data-value="depth_tunnel" data-note="前景 → 中景 → 远景的纵深通道，把视线带进世界。" aria-pressed="false"><strong>纵深通道</strong><span>透视线把视线带入画面深处</span><small>depth</small></button>
+                    <button class="option" data-group="cover_C4_flow" data-label="C4 动线" data-value="left_to_right" data-note="水平从左到右的自然阅读顺序。" aria-pressed="false"><strong>水平扫读</strong><span>从左到右自然阅读</span><small>L→R</small></button>
+                  </div>
+                </div>
+              </section>
+
+            </div><!-- /#section-cover -->
+
+            <!-- ══════════════════════════════════════
+                 VERTICAL POSTER ADAPTER
+            ══════════════════════════════════════ -->
+            <div class="adapter-section active" id="section-poster">
+
+              <section class="section" id="ratio">
+                <div class="section-head">
+                  <div class="section-no">01</div>
+                  <div class="section-title">
+                    <h2>选择画幅</h2>
+                    <p>竖版海报推荐先出 9:16 母版：主体内容居中，上下只放可裁背景，兼容裁成 2:3 / 3:4 / 4:5。</p>
+                  </div>
+                </div>
+                <div class="content option-grid">
+                  <button class="option ratio-card" data-group="poster_aspect_ratio" data-label="画幅" data-value="9:16" data-note="竖版母版 1080×1920；中央 70% 高度安全区兼容裁成 2:3 / 3:4 / 4:5。" aria-pressed="true"><div class="shape r916"></div><div><strong>9:16 母版</strong><span>1080×1920 · 中央70%高安全区<br>主体居中，上下可裁背景</span><small>master</small></div></button>
+                  <button class="option ratio-card" data-group="poster_aspect_ratio" data-label="画幅" data-value="2:3" data-note="从 9:16 裁上下得到；主体必须仍在中央安全区。" aria-pressed="false"><div class="shape r23"></div><div><strong>2:3</strong><span>从9:16裁上下得到</span><small>crop</small></div></button>
+                  <button class="option ratio-card" data-group="poster_aspect_ratio" data-label="画幅" data-value="3:4" data-note="从 9:16 裁上下得到；保留中央主体。" aria-pressed="false"><div class="shape r34"></div><div><strong>3:4</strong><span>从9:16裁上下得到</span><small>crop</small></div></button>
+                  <button class="option ratio-card" data-group="poster_aspect_ratio" data-label="画幅" data-value="4:5" data-note="最严格竖版裁切；只保留 9:16 中央约 70% 高度。" aria-pressed="false"><div class="shape r45"></div><div><strong>4:5</strong><span>最严格裁切，只保留中央70%高</span><small>safe</small></div></button>
+                </div>
+              </section>
+
+              <section class="section" id="poster-composition">
+                <div class="section-head">
+                  <div class="section-no">02</div>
+                  <div class="section-title">
+                    <h2>构图层 · Composition Layer</h2>
+                    <p>4 维度统一框架：视角 → 版式骨架 → 面积分配 → 视觉动线。与横版/Banner 同构，仅取值池受画幅约束。</p>
+                  </div>
+                </div>
+                <div class="content">
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C1 · 视角 Viewpoint</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="front_facing" data-note="正面直视，最强邀请感和商业性。" aria-pressed="true"><strong>正面直视</strong><span>角色面对观众，邀请感最强。</span><small>C1</small></button>
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="heroic_low_angle" data-note="仰角英雄感，适合动作和史诗。" aria-pressed="false"><strong>仰视英雄</strong><span>仰角增强力量感。</span><small>C1</small></button>
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="bird_eye" data-note="俯瞰世界，适合全景和策略。" aria-pressed="false"><strong>俯瞰世界</strong><span>上帝视角，展现世界全貌。</span><small>C1</small></button>
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="back_silhouette" data-note="背面剪影，进入感和探索感。" aria-pressed="false"><strong>背影入画</strong><span>观众跟随角色进入世界。</span><small>C1</small></button>
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="close_up" data-note="特写面部或道具，情绪最集中。" aria-pressed="false"><strong>大特写</strong><span>极近距离，聚焦表情或细节。</span><small>C1</small></button>
+                    <button class="option" data-group="poster_C1_viewpoint" data-label="C1 视角" data-value="isometric_float" data-note="等距悬浮视角，适合休闲和世界构建。" aria-pressed="false"><strong>等距悬浮</strong><span>2.5D 视角，轻松展示多元素。</span><small>C1</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C2 · 版式骨架 Layout Skeleton（竖版 Archetype）</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="cinematic_survival" data-note="人物 55% / 环境 35% / 文字 10%；适合生存危机、末世。" aria-pressed="true"><strong>暗黑电影感</strong><span>人物背靠背，雾与废墟讲故事，标题克制。</span><small>55/35/10</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="neon_racer" data-note="标题 25% / 主体 55% / 速度线 20%；适合赛车、电竞。" aria-pressed="false"><strong>电竞赛车</strong><span>巨大标题压顶，斜切闪电，主体冲出画面。</span><small>25/55/20</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="minimal_silhouette" data-note="留白 45% / 巨物 40% / 小人物标题 15%；适合高级冒险。" aria-pressed="false"><strong>极简巨物剪影</strong><span>小人物面对大世界，用负空间和巨大象征物制造记忆。</span><small>45/40/15</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="comic_collage" data-note="主视觉 40% / 分格 40% / 标题 20%；适合 GTA 式多角色。" aria-pressed="false"><strong>群像拼贴</strong><span>中心 Logo 压场，周边分格呈现角色与玩法。</span><small>40/40/20</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="sports_editorial" data-note="留白 45% / 几何线 35% / 载具 20%；适合运动和品牌编辑感。" aria-pressed="false"><strong>运动编辑极简</strong><span>白底大字几何速度线，主体小但方向强。</span><small>45/35/20</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="casual_event" data-note="标题 22% / 爆点 55% / 商业 13% / 装饰 10%；适合活动图。" aria-pressed="false"><strong>休闲欢乐活动</strong><span>中心爆光组织群像，底部承载合作方与 CTA。</span><small>22/55/13</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="ink_negative_space" data-note="大剪影 55% / 人物 25% / 留白文字 20%；适合高反差艺术。" aria-pressed="false"><strong>水墨负形压迫</strong><span>米色背景，黑色大剪影，少量红色，靠形状压迫。</span><small>55/25/20</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="depth_battle" data-note="前景 15% / 主体 50% / 远景 25% / 标题 10%；适合 RPG 和动作。" aria-pressed="false"><strong>三层景深战斗</strong><span>前景虚化建立镜头，中景主体，远景巨物给规模。</span><small>15/50/25</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="retro_movie" data-note="手绘插画 60% / 场景 30% / 文字 10%；适合年代剧情。" aria-pressed="false"><strong>复古叙事电影</strong><span>手绘插画风，脏纸纹理，年代感与手写标题。</span><small>60/30/10</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="colossal_scale" data-note="人物 ≤5% / 巨像 80% / 文字 10%；适合史诗奇幻与巨兽对决。" aria-pressed="false"><strong>巨物尺度差</strong><span>微小人物 vs 顶天立地巨像，逆光与雾气增强规模感。</span><small>5/80/10</small></button>
+                    <button class="option" data-group="poster_C2_layout" data-label="C2 版式" data-value="mobile_ad_card" data-note="卡片 65% / 破框 20% / 按钮 10% / 文字 5%；适合买量素材。" aria-pressed="false"><strong>强转化广告卡</strong><span>白色卡片底，角色破框 3D 弹出，底部下载按钮。</span><small>65/20/10</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C3 · 面积分配 Area Weight（标题 + 主体占比档位）</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="poster_C3_title_wt" data-label="C3 标题占比" data-value="quiet 5-12%" data-note="标题克制，让位于情绪，适合电影感。" aria-pressed="true"><strong>克制标题 5-12%</strong><span>标题让位于情绪。</span><small>quiet</small></button>
+                    <button class="option" data-group="poster_C3_title_wt" data-label="C3 标题占比" data-value="standard 12-20%" data-note="常规商店页和角色海报标题权重。" aria-pressed="false"><strong>标准标题 12-20%</strong><span>兼顾识别和画面。</span><small>standard</small></button>
+                    <button class="option" data-group="poster_C3_title_wt" data-label="C3 标题占比" data-value="dominant 20-35%" data-note="标题是货架冲击核心，适合电竞和活动。" aria-pressed="false"><strong>压顶标题 20-35%</strong><span>远距离可读。</span><small>dominant</small></button>
+                    <button class="option" data-group="poster_C3_hero_wt" data-label="C3 主体占比" data-value="tiny 5-18%" data-note="小人物强化宏大世界和孤独感。" aria-pressed="false"><strong>小人物 5-18%</strong><span>世界比人更重要。</span><small>tiny</small></button>
+                    <button class="option" data-group="poster_C3_hero_wt" data-label="C3 主体占比" data-value="balanced 35-50%" data-note="人物和环境均衡，适合叙事。" aria-pressed="true"><strong>均衡主体 35-50%</strong><span>角色和背景共同讲故事。</span><small>balanced</small></button>
+                    <button class="option" data-group="poster_C3_hero_wt" data-label="C3 主体占比" data-value="dominant 50-70%" data-note="角色或载具主导画面，适合商业冲击。" aria-pressed="false"><strong>主导主体 50-70%</strong><span>角色或载具压场。</span><small>dominant</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C4 · 视觉动线 Eye Flow</h4>
+                  <div class="option-grid three">
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="top-title-to-hero" data-note="顶部大标题 → 中部角色 → 底部角色名。" aria-pressed="true"><strong>标题压顶</strong><span>先读大标题，再看主体动作。</span><small>title first</small></button>
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="diagonal_15_35" data-note="15°-35° 斜线贯穿，适合速度与动作。" aria-pressed="false"><strong>斜线冲刺</strong><span>用对角线让画面失衡并产生速度感。</span><small>15°-35°</small></button>
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="giant-shape-to-tiny-hero" data-note="巨大符号 → 小人物 → 标题，适合极简世界观。" aria-pressed="false"><strong>巨物压迫</strong><span>先看大形，再发现小人物。</span><small>scale shock</small></button>
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="center-logo-radial" data-note="中心 Logo 向四周分格扩散，适合多场景世界观。" aria-pressed="false"><strong>中心放射</strong><span>Logo 是锚点，周边信息环绕展开。</span><small>radial</small></button>
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="depth_tunnel" data-note="前景框 → 中景主体 → 远景目标，适合战斗和探索。" aria-pressed="false"><strong>纵深通道</strong><span>用透视线把视线带进世界。</span><small>depth</small></button>
+                    <button class="option" data-group="poster_C4_flow" data-label="C4 动线" data-value="hero-to-world-to-title" data-note="人物 → 背景危机 → 底部标题，适合电影感叙事。" aria-pressed="false"><strong>人物叙事</strong><span>先读人物处境，再读世界危机。</span><small>cinema</small></button>
+                  </div>
+                </div>
+              </section>
+
+            </div><!-- /#section-poster -->
+
+            <!-- ══════════════════════════════════════
+                 BANNER (WIDE) ADAPTER
+            ══════════════════════════════════════ -->
+            <div class="adapter-section" id="section-banner">
+
+              <section class="section" id="ratio-banner">
+                <div class="section-head">
+                  <div class="section-no">01</div>
+                  <div class="section-title">
+                    <h2>选择 Banner 档位</h2>
+                    <p>三档母版按比例区间划分，出图选母版比例，部署时裁左右到目标比例。</p>
+                  </div>
+                </div>
+                <div class="content option-grid three">
+                  <button class="option ratio-card" data-group="banner_aspect_ratio" data-label="Banner档位" data-value="3.5:1" data-note="标准长条母版 1792×512；安全区 74%宽×90%高；兼容裁成 3:1 / 2.6:1" aria-pressed="true"><div class="shape r35"></div><div><strong>3.5:1 标准长条</strong><span>母版 1792×512<br>安全区 74%宽 × 90%高<br>兼容 2.6:1 ~ 3.5:1</span><small>master</small></div></button>
+                  <button class="option ratio-card" data-group="banner_aspect_ratio" data-label="Banner档位" data-value="5.2:1" data-note="超长 Banner 母版 2080×400；安全区 76%宽×90%高；兼容裁成 5:1 / 4.3:1 / 4:1" aria-pressed="false"><div class="shape r52"></div><div><strong>5.2:1 超长</strong><span>母版 2080×400<br>安全区 76%宽 × 90%高<br>兼容 4.0:1 ~ 5.2:1</span><small>master</small></div></button>
+                  <button class="option ratio-card" data-group="banner_aspect_ratio" data-label="Banner档位" data-value="8:1" data-note="极窄广告条母版 2560×320；安全区 74%宽×90%高；兼容裁成 7.8:1 / 6.4:1 / 6:1" aria-pressed="false"><div class="shape r81"></div><div><strong>8:1 极窄广告条</strong><span>母版 2560×320<br>安全区 74%宽 × 90%高<br>兼容 6.0:1 ~ 8.0:1</span><small>master</small></div></button>
+                </div>
+              </section>
+
+              <section class="section" id="banner-composition">
+                <div class="section-head">
+                  <div class="section-no">02</div>
+                  <div class="section-title">
+                    <h2>构图层 · Composition Layer</h2>
+                    <p>4 维度统一框架：视角 → 版式骨架 → 面积分配 → 视觉动线。与横版/竖版同构，仅取值池受超宽画幅约束。</p>
+                  </div>
+                </div>
+                <div class="content">
+
+                  <!-- Banner 构图三条底线 · v4.17 -->
+                  <div style="margin-bottom:14px;padding:11px 13px;border:2px solid var(--ink);background:#111b24;color:#e8f4ff;font-size:.83rem;line-height:1.7">
+                    <div style="font-weight:900;margin-bottom:6px;color:var(--gold)">⚡ Banner 构图三条底线（无论选哪个 archetype 都必须满足）</div>
+                    <div>① <b>Modular Layout</b> — 必须是<b>横向三分区</b>（标题模块 / 主体模块 / 辅助符号模块）；不能是横版截图被压扁。下面 C2 的 10 种模板都已遵循这一底线。</div>
+                    <div>② <b>Hero Scale 破框</b> — 主体必须<b>商业化放大</b>：侧边切入 / 破框 / 局部裁切，核心识别不被破坏。下面 C3 选 hero 60%+ 档时配合 prompt 写 "extends beyond frame" / "side cropped"。</div>
+                    <div>③ <b>Module Connection</b> — 标题和主体之间<b>必须有视觉连接</b>（运动线 / 光束 / 粒子 / 物体重叠 / 透视路），不是两张图拼贴。下面 C4 各选项都应配合在 prompt 里写连接物。</div>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C1 · 视角 Viewpoint</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="banner_C1_viewpoint" data-label="C1 视角" data-value="front_flat" data-note="正面平视，Banner 最常用视角——空间有限，正面最高效。" aria-pressed="true"><strong>正面平视</strong><span>最高效传达，空间有限首选。</span><small>C1</small></button>
+                    <button class="option" data-group="banner_C1_viewpoint" data-label="C1 视角" data-value="low_angle_hero" data-note="略仰角英雄感，适合动作类 banner。" aria-pressed="false"><strong>略仰英雄</strong><span>微仰角增强力量感。</span><small>C1</small></button>
+                    <button class="option" data-group="banner_C1_viewpoint" data-label="C1 视角" data-value="three_quarter" data-note="3/4 侧面视角，增加立体感和动感。" aria-pressed="false"><strong>3/4 侧面</strong><span>动感与立体感平衡。</span><small>C1</small></button>
+                    <button class="option" data-group="banner_C1_viewpoint" data-label="C1 视角" data-value="isometric_scene" data-note="等距场景俯视，适合展示世界和休闲。" aria-pressed="false"><strong>等距俯视</strong><span>展示小世界/多元素场景。</span><small>C1</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C2 · 版式骨架 Layout Skeleton（10 种 Banner 模板）</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="left_title_right_hero" data-note="左35%大标题 / 中右55%大主体；适合射击、跑酷、动作。" aria-pressed="true"><strong>1. 左文右主体</strong><span>射击·跑酷·动作</span><small>title L / hero R</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="left_hero_right_title" data-note="左45%大主体 / 右40%标题；适合赛车、摩托、体育。" aria-pressed="false"><strong>2. 左主体右文</strong><span>赛车·摩托·体育</span><small>hero L / title R</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="center_title_two_side" data-note="中央巨大标题 / 左右角色道具；适合活动、节日、多角色、IP。" aria-pressed="false"><strong>3. 中央大标题+两侧</strong><span>活动·节日·IP</span><small>center title</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="center_hero_two_side" data-note="中央最大主体 / 左标题 / 右奖励；适合奖励型、角色、休闲。" aria-pressed="false"><strong>4. 中央主体+两侧</strong><span>奖励·角色·休闲</span><small>center hero</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="reward_promo" data-note="巨大数字/奖励 + CTA图形 + 角色；适合bonus、抽奖、福利。" aria-pressed="false"><strong>5. 奖励促销型</strong><span>bonus·福利·抽奖</span><small>reward</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="event_tournament" data-note="超大标题 + 日期/奖池/角色；适合竞技、赛事、MOBA、联赛。" aria-pressed="false"><strong>6. 赛事信息条</strong><span>竞技·赛事·MOBA</span><small>event</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="diagonal_split" data-note="3~4斜切面板 + 统一标题；适合多角色、RPG、派对。" aria-pressed="false"><strong>7. 斜切分屏</strong><span>多角色·RPG·派对</span><small>diagonal</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="oversized_object" data-note="巨大道具/载具横跨中间；适合赛车、武器、机甲。" aria-pressed="false"><strong>8. 大物件横穿</strong><span>赛车·武器·机甲</span><small>oversized</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="target_lock" data-note="大标题 + 巨大目标 + 准星/目标线；适合射击、狙击、塔防。" aria-pressed="false"><strong>9. 目标锁定/瞄准</strong><span>射击·狙击·塔防</span><small>target</small></button>
+                    <button class="option" data-group="banner_C2_layout" data-label="C2 版式" data-value="extreme_strip" data-note="一标题+一主体+一爆点；适合6:1~8:1极窄通栏。" aria-pressed="false"><strong>10. 极窄极简型</strong><span>6:1~8:1 极窄通栏</span><small>strip</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C3 · 面积分配 Area Weight（水平三分区）</h4>
+                  <div class="option-grid three" style="margin-bottom:14px">
+                    <button class="option" data-group="banner_C3_weight" data-label="C3 面积" data-value="title_35_hero_55" data-note="标题区 35% / 主体区 55% / 符号区 10%；标准比例。" aria-pressed="true"><strong>标题35 / 主体55 / 符号10</strong><span>标准商业比例</span><small>35/55/10</small></button>
+                    <button class="option" data-group="banner_C3_weight" data-label="C3 面积" data-value="title_45_hero_45" data-note="标题与主体均衡各占 45%，剩余 10% 给装饰。" aria-pressed="false"><strong>标题45 / 主体45 / 装饰10</strong><span>均衡对称</span><small>45/45/10</small></button>
+                    <button class="option" data-group="banner_C3_weight" data-label="C3 面积" data-value="hero_60_title_30" data-note="主体主导 60% / 标题 30% / 装饰 10%；视觉冲击优先。" aria-pressed="false"><strong>主体60 / 标题30 / 装饰10</strong><span>主体视觉冲击优先</span><small>60/30/10</small></button>
+                    <button class="option" data-group="banner_C3_weight" data-label="C3 面积" data-value="title_50_hero_35" data-note="标题超大 50% / 主体 35% / 信息 15%；赛事信息型。" aria-pressed="false"><strong>标题50 / 主体35 / 信息15</strong><span>信息密度优先</span><small>50/35/15</small></button>
+                  </div>
+
+                  <h4 style="margin:0 0 8px;font-size:.85rem;color:var(--violet)">C4 · 视觉动线 Eye Flow</h4>
+                  <div class="option-grid three">
+                    <button class="option" data-group="banner_C4_flow" data-label="C4 动线" data-value="left_to_right" data-note="标准水平阅读：标题(左) → 主体(中) → CTA/符号(右)。" aria-pressed="true"><strong>水平扫读 L→R</strong><span>最自然的横向阅读顺序。</span><small>L→R</small></button>
+                    <button class="option" data-group="banner_C4_flow" data-label="C4 动线" data-value="center_radial" data-note="中心爆点向两侧扩散，适合活动和赛事。" aria-pressed="false"><strong>中心辐射</strong><span>中心爆光向两侧发散。</span><small>radial</small></button>
+                    <button class="option" data-group="banner_C4_flow" data-label="C4 动线" data-value="right_to_left" data-note="反向：主体(左) → 视线引导 → 标题(右)。" aria-pressed="false"><strong>反向扫读 R→L</strong><span>主体先抓眼球，再读标题。</span><small>R→L</small></button>
+                    <button class="option" data-group="banner_C4_flow" data-label="C4 动线" data-value="diagonal_speed" data-note="斜切动线，速度感，适合赛车和动作。" aria-pressed="false"><strong>斜切加速</strong><span>斜线制造速度和冲击。</span><small>diagonal</small></button>
+                    <button class="option" data-group="banner_C4_flow" data-label="C4 动线" data-value="converge_to_center" data-note="两侧元素向中心汇聚，适合对抗和赛事。" aria-pressed="false"><strong>两侧汇聚中心</strong><span>对抗感、赛事感。</span><small>converge</small></button>
+                  </div>
+                </div>
+              </section>
+
+            </div><!-- /#section-banner -->
+      </div>
+
+      <!-- ─────────── 右栏：表现因素层 + 叙事变量 ─────────── -->
+      <div class="composition-method-col" id="composition-col-right">
+        <div style="border:2px solid var(--ink);padding:12px;background:var(--paper-soft)">
+          <h4 style="margin:0 0 6px;font-size:.9rem">表现因素层</h4>
+          <ul style="margin:0;padding-left:18px;font-size:.82rem;line-height:1.6">
+            <li>能体现游戏原生美术风格的色彩 / 字体 / 光影 / 质感<details><summary>示例</summary><div style="text-align:left;margin-top:8px;padding:8px 10px;background:#f5f0ff;border-radius:6px;font-size:.8rem;line-height:1.65">游戏原生美术风格 = 从 ICON + 游戏截图分析得出的风格锚点，让所有方案保持同一个游戏的视觉基因，换句话说——让玩家一眼认出"这是《某某游戏》的感觉"，而不是不同方案画出不同游戏。<br><br>具体包括：<br><br>色彩 ：主色调 / 配色比例（从截图提取）<br>线条 ：线条粗细 / 风格（卡通/写实/扁平）<br>角色 ：角色比例 / 表情风格 / 画法<br>UI ：UI 元素质感 / 图标风格</div></details></li>
+            <li>多方案分叉的来源——叙事维度<details><summary>示例</summary><div style="text-align:left;margin-top:8px;padding:8px 10px;background:#f5f0ff;border-radius:6px;font-size:.8rem;line-height:1.65"><b>5 个故事维度（结构化变量，不是泛泛而谈）：</b><br><br><b>1. 时间点（Moment）</b><br>即将发生（悬念） / 动作爆点（冲击） / 结果已发生（成就感）<br><br><b>2. 角色任务（Character Goal）</b><br>invite（邀请进入） / solve（解决问题） / face_crisis（面对危机） / victory（取得胜利） / discover（发现探索） / guide（带你进入新世界）<br><br><b>3. 观众关系（Viewer Relation）</b><br>direct_eye_contact（直视玩家） / look_at_target（角色看向画面目标） / back_to_viewer（角色背对，探索感） / multi_character（群像互动）<br><br><b>4. 冲突强度（Conflict Level）</b><br>none（治愈休闲） / low safe_excitement（大多数休闲游戏的甜点区） / medium（卡牌/策略/RPG） / high（动作/对抗/硬核）<br><br><b>5. 结果导向（Reward Signal）</b><br>try_it（我想试试）/ nearly_winning（我快赢了）/ loot_rich（奖励很多）/ world_interesting（世界有趣）/ character_lovely（角色可爱）<br><br><b>本质：</b>锁定 DNA 后，方案间差异来自叙事维度，不是风格差异。</div></details></li>
+          </ul>
+        </div>
+
+  <!-- ── GLOBAL: 表现因素层（色彩 / 字体 / 光影 / 质感）── -->
+  <section class="section global-section" id="global-expression" aria-label="全局表现因素">
+    <div class="section-head">
+      <div class="section-no">★</div>
+      <div class="section-title">
+        <h2>表现因素层（通用）</h2>
+        <p>以下内容是从大量案例里归纳出来的共性模式——每次周期性喂图学习后，会根据"反馈进化规则"（§9.2）持续扩充和修正；四个子模块各自有一张选项池表，应用时从游戏类型 + 叙事目标 + DNA 三维度交叉锁定选项，写 prompt 时用的是 SOP 里那几张表，按上面的三步决策法查表选取。</p>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- 表现层底线 · 跨格式通用 -->
+      <div style="margin-bottom:14px;padding:11px 13px;border:2px solid var(--ink);background:#fff5e0;font-size:.84rem;line-height:1.6">
+        <b>📐 表现层底线（三格式通用 · 不可逾越）</b>
+        <ul style="margin:6px 0 0;padding-left:20px">
+          <li><b>禁止空色块背景</b>：背景至少包含<b>渐变 / 光效 / 斜切 / 纹理 / 粒子 / 剪影</b>之一作为图形化层。纯色块或单一渐变会让画面廉价。<br>👉 Banner 场景尤其严格（横版/竖版有主体保护时也不能省）。</li>
+          <li><b>颗粒/质感/胶片噪点至少 1 项</b>：避免 AI 生成的"塑料感"（参考"质感"选项池）</li>
+          <li><b>层次至少 3 层</b>：前景 / 中景 / 背景必须有视觉层级，否则画面扁平</li>
+        </ul>
+      </div>
+
+      <div class="option-grid three" style="margin-bottom:12px">
+        <button class="option" data-group="global_color" data-label="色彩" data-value="retro sunset" data-note="粉橙天空 50% / 暗部剪影 30% / 霓虹点缀 20%。" aria-pressed="true"><strong>复古夕阳</strong><span>开放世界、城市犯罪、80s 风。</span><small>50/30/20</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="dark survival" data-note="暗色 70% / 冷灰 20% / 红火光 10%。" aria-pressed="false"><strong>暗黑生存</strong><span>恐怖、末世、生存危机。</span><small>70/20/10</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="neon esports" data-note="暗底 40% / 霓虹主色 40% / 白色高亮 20%。" aria-pressed="false"><strong>电竞霓虹</strong><span>赛车、MOBA、科幻潮流。</span><small>40/40/20</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="minimal monochrome" data-note="背景 60% / 剪影 30% / 文字 10%。" aria-pressed="false"><strong>极简单色</strong><span>独立、冒险、高级感。</span><small>60/30/10</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="casual warm" data-note="高明度 45% / 角色彩色 40% / 光效 15%。" aria-pressed="false"><strong>休闲暖光</strong><span>休闲游戏、节日活动。</span><small>45/40/15</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="sports white" data-note="白/米白 65% / 品牌线条 25% / 载具实色 10%。" aria-pressed="false"><strong>运动白底</strong><span>运动、品牌编辑、克制留白。</span><small>65/25/10</small></button>
+        <button class="option" data-group="global_color" data-label="色彩" data-value="cool highkey" data-note="高调冷色，适合科幻和干净感。" aria-pressed="false"><strong>冷调高光</strong><span>科幻、清洁感、未来感。</span><small>cool</small></button>
+      </div>
+      <div class="option-grid three" style="margin-bottom:12px">
+        <button class="option" data-group="global_type" data-label="字体" data-value="classic serif" data-note="高对比衬线，古典细长，适合 RPG 与奇幻。" aria-pressed="true"><strong>古典衬线</strong><span>奇幻、史诗、文学化。</span><small>serif</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="esports cut" data-note="超粗压缩切角，赛车和电竞感。" aria-pressed="false"><strong>电竞切角</strong><span>速度、力量、冲击。</span><small>heavy</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="distressed horror" data-note="破损锈蚀，字距大，适合恐怖。" aria-pressed="false"><strong>恐怖破损</strong><span>末日、锈蚀、旧电影感。</span><small>distressed</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="clean sans" data-note="干净无衬线，现代感和科技感。" aria-pressed="false"><strong>现代无衬线</strong><span>简洁、现代、科技。</span><small>sans</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="retro bold" data-note="复古粗衬线，80s 和 Lo-fi 感。" aria-pressed="false"><strong>复古粗衬线</strong><span>80s、Lo-fi、怀旧。</span><small>retro</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="comic bold" data-note="粗白字黑描边，美漫和游戏感。" aria-pressed="false"><strong>美漫粗白字</strong><span>活力、游戏感、强视觉。</span><small>comic</small></button>
+        <button class="option" data-group="global_type" data-label="字体" data-value="vintage handdrawn" data-note="手绘感、粗糙边缘、年代感；适合复古叙事。" aria-pressed="false"><strong>手绘复古</strong><span>手工感、报纸感、故事感。</span><small>handdrawn</small></button>
+      </div>
+      <div class="option-grid three" style="margin-bottom:12px">
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="rim light" data-note="勾勒角色和载具轮廓；与 L2 杠杆叠加细化。" aria-pressed="true"><strong>边缘光</strong><span>暗背景里把主体跳出来。</span><small>rim</small></button>
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="backlit silhouette" data-note="逆光剪影，神秘感和英雄感。" aria-pressed="false"><strong>逆光剪影</strong><span>少细节，多轮廓。</span><small>backlit</small></button>
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="center burst" data-note="中心爆光组织群像，竞速冲刺。" aria-pressed="false"><strong>中心爆光</strong><span>所有元素围绕一个爆点。</span><small>burst</small></button>
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="warm cold contrast" data-note="冷暖对撞，适合战斗和灾难。" aria-pressed="false"><strong>冷暖对撞</strong><span>戏剧性与冲突感。</span><small>contrast</small></button>
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="soft diffused" data-note="柔和漫射光，适合休闲和暖光。" aria-pressed="false"><strong>柔光漫射</strong><span>柔和、亲切、治愈。</span><small>soft</small></button>
+        <button class="option" data-group="global_lighting" data-label="光影" data-value="spotlight from above" data-note="顶部探照灯，适合赛事和仪式感。" aria-pressed="false"><strong>顶部大光源</strong><span>仪式、赛事、纪念碑感。</span><small>spotlight</small></button>
+      </div>
+      <div class="option-grid three">
+        <button class="option" data-group="global_texture" data-label="质感" data-value="grain film" data-note="颗粒与胶片划痕，统一画面降 AI 感。" aria-pressed="true"><strong>颗粒胶片</strong><span>电影感、暗黑、复古。</span><small>grain</small></button>
+        <button class="option" data-group="global_texture" data-label="质感" data-value="paper halftone" data-note="印刷网点，半色调，适合潮流和电竞。" aria-pressed="false"><strong>纸纹半色调</strong><span>印刷感、电竞、潮流。</span><small>print</small></button>
+        <button class="option" data-group="global_texture" data-label="质感" data-value="fog depth" data-note="雾气和前景遮挡，增加镜头感和景深。" aria-pressed="false"><strong>雾与前景</strong><span>战斗、探索、纵深感。</span><small>fog</small></button>
+        <button class="option" data-group="global_texture" data-label="质感" data-value="vintage worn paper" data-note="脏纸磨损纹理，适合手绘复古海报。" aria-pressed="false"><strong>脏纸磨损</strong><span>年代感、手工感、复古叙事。</span><small>vintage</small></button>
+        <button class="option" data-group="global_texture" data-label="质感" data-value="registration marks" data-note="印刷标记和校色条，适合潮流编辑型海报。" aria-pressed="false"><strong>印刷标记</strong><span>品牌编辑感、潮流活动感。</span><small>registration</small></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GLOBAL: 叙事变量（5 个故事维度）── -->
+  <section class="section global-section" id="global-story" aria-label="全局叙事变量">
+    <div class="section-head">
+      <div class="section-no">★</div>
+      <div class="section-title">
+        <h2>叙事变量（通用）</h2>
+        <p>从用户目标倒推，所有 5 个维度的选择都围绕这个目的展开。</p>
+        <details><summary>具体决策顺序</summary><div style="text-align:left;margin-top:10px;padding:10px 12px;background:#f5f0ff;border-radius:6px;font-size:.8rem;line-height:1.65">
+<b>决策核心原则：</b>从用户目标倒推，而不是从变量池正推。第一步问自己：这张图要达成什么转化目的？<br><br>
+<b>Step 1：先定 Reward Signal（第 5 维）—— 最终目标</b><br>
+try_it（我想试试）/ nearly_winning（我快赢了）/ loot_rich（奖励很多）/ world_interesting（世界有趣）/ character_lovely（角色可爱）<br><br>
+<b>Step 2：再定 Moment（第 1 维）—— 制造哪种情绪</b><br>
+before（即将发生，悬念）/ during（动作爆点，冲击）/ after（结果已发生，成就感）<br><br>
+<b>Step 3：次定 Conflict Level（第 4 维）—— 安全边界</b><br>
+none（治愈休闲）/ low safe_excitement（大多数休闲游戏的甜点区）/ medium（卡牌/策略/RPG）/ high（动作/对抗/硬核）<br>
+⚠️ 休闲游戏绝对不能选 high，那会让玩家觉得游戏好难好累，直接劝退<br><br>
+<b>Step 4：再定 Character Goal（第 2 维）—— 角色在干嘛</b><br>
+invite / solve / face_crisis / victory / discover / guide<br>
+同一动作（如"举盾"）在不同 character_goal 下含义完全不同<br><br>
+<b>Step 5：最后定 Viewer Relation（第 3 维）—— 视线往哪指</b><br>
+direct_eye_contact（直视玩家）/ look_at_target（融入故事）/ back_to_viewer（主动探索）/ multi_character（关系感）<br><br>
+<b>完整例子（休闲皇室三消）：</b><br>
+目标：让玩家觉得"游戏有趣，想试试" → try_it<br>
+moment = before（悬念吊胃口）<br>
+conflict_level = low（休闲游戏甜点区）<br>
+character_goal = invite（角色欢迎进入）<br>
+viewer_relation = direct_eye_contact（直视玩家，最像邀请）<br><br>
+<b>本质：</b>5 个维度是链式推导关系，不是独立并选。Reward Signal 锁定最终目标 → Moment 决定故事时间点 → Conflict Level 划定强度上限 → Character Goal 自然跟上 → Viewer Relation 收尾视线设计。
+</div></details>
+      </div>
+    </div>
+    <div class="content option-grid three" style="margin-bottom:12px">
+      <button class="option" data-group="global_moment" data-label="时间点" data-value="before" data-note="即将发生，悬念最强，点击驱动。" aria-pressed="true"><strong>Before</strong><span>动作前一秒，观众想知道接下来怎样。</span><small>moment</small></button>
+      <button class="option" data-group="global_moment" data-label="时间点" data-value="during" data-note="正在发生，冲击最强。" aria-pressed="false"><strong>During</strong><span>爆点瞬间，适合速度和战斗。</span><small>moment</small></button>
+      <button class="option" data-group="global_moment" data-label="时间点" data-value="after" data-note="结果已发生，成就感最强。" aria-pressed="false"><strong>After</strong><span>胜利、奖励、余波与结果。</span><small>moment</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="invite" data-note="角色邀请进入，低压力高转化。" aria-pressed="true"><strong>Invite</strong><span>欢迎、引导、递出入口。</span><small>goal</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="solve" data-note="解题，适合强调玩法。" aria-pressed="false"><strong>Solve</strong><span>解决玩法问题。</span><small>goal</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="victory" data-note="取得胜利，成就导向。" aria-pressed="false"><strong>Victory</strong><span>庆祝、成就、正反馈。</span><small>goal</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="face_crisis" data-note="面对危机，中等冲突。" aria-pressed="false"><strong>Face Crisis</strong><span>危机临近，但仍安全。</span><small>goal</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="discover" data-note="探索新区域，好奇心驱动。" aria-pressed="false"><strong>Discover</strong><span>发现惊喜与世界兴趣。</span><small>goal</small></button>
+      <button class="option" data-group="global_goal" data-label="角色任务" data-value="guide" data-note="带领玩家进入新世界。" aria-pressed="false"><strong>Guide</strong><span>引导、带入新世界。</span><small>goal</small></button>
+      <button class="option" data-group="global_viewer" data-label="观众关系" data-value="direct_eye" data-note="直面玩家，最强点击率，最像邀请。" aria-pressed="true"><strong>直面玩家</strong><span>直视镜头，邀请感最强。</span><small>viewer</small></button>
+      <button class="option" data-group="global_viewer" data-label="观众关系" data-value="look_target" data-note="角色看向画面内目标，叙事感。" aria-pressed="false"><strong>看向目标</strong><span>故事正在发生。</span><small>viewer</small></button>
+      <button class="option" data-group="global_viewer" data-label="观众关系" data-value="back_to_viewer" data-note="背对玩家，观众跟随进入画面。" aria-pressed="false"><strong>背对玩家</strong><span>探索与进入感。</span><small>viewer</small></button>
+      <button class="option" data-group="global_viewer" data-label="观众关系" data-value="multi_character" data-note="群像互动，关系感最强。" aria-pressed="false"><strong>群像关系</strong><span>角色之间互动，关系感强。</span><small>viewer</small></button>
+      <button class="option" data-group="global_conflict" data-label="冲突强度" data-value="none" data-note="无冲突，适合治愈和收集类。" aria-pressed="true"><strong>无冲突</strong><span>治愈、收集、安静。</span><small>conflict</small></button>
+      <button class="option" data-group="global_conflict" data-label="冲突强度" data-value="low" data-note="轻度兴奋，适合大多数休闲游戏。" aria-pressed="false"><strong>低冲突</strong><span>关键块快到位 / 宝箱要开。</span><small>conflict</small></button>
+      <button class="option" data-group="global_conflict" data-label="冲突强度" data-value="medium" data-note="中等冲突，适合卡牌和策略。" aria-pressed="false"><strong>中等冲突</strong><span>卡牌、策略、轻度 RPG。</span><small>conflict</small></button>
+      <button class="option" data-group="global_conflict" data-label="冲突强度" data-value="high" data-note="高冲突，适合动作和硬核。" aria-pressed="false"><strong>高冲突</strong><span>动作、对抗、硬核射击。</span><small>conflict</small></button>
+      <button class="option" data-group="global_reward" data-label="结果导向" data-value="try_it" data-note="想点进去试试，最像广告导向。" aria-pressed="true"><strong>想试试</strong><span>低门槛邀请感，转化最强。</span><small>reward</small></button>
+      <button class="option" data-group="global_reward" data-label="结果导向" data-value="nearly_winning" data-note="快赢了的感觉，适合解题和卡牌。" aria-pressed="false"><strong>快赢了</strong><span>玩法导向，适合解题、卡牌。</span><small>reward</small></button>
+      <button class="option" data-group="global_reward" data-label="结果导向" data-value="loot_rich" data-note="奖励丰富，适合打宝和收集。" aria-pressed="false"><strong>奖励丰富</strong><span>留存导向，奖励喷发。</span><small>reward</small></button>
+      <button class="option" data-group="global_reward" data-label="结果导向" data-value="world_interesting" data-note="世界值得进入，适合开放世界。" aria-pressed="false"><strong>世界有趣</strong><span>世界观导向。</span><small>reward</small></button>
+      <button class="option" data-group="global_reward" data-label="结果导向" data-value="character_lovely" data-note="角色可爱，适合休闲和亲和感。" aria-pressed="false"><strong>角色可爱</strong><span>角色导向，亲和与治愈。</span><small>reward</small></button>
+    </div>
+  </section>
+
+      </div><!-- /#composition-col-right -->
+    </div><!-- /.composition-method-grid -->
+  </section><!-- /#composition-method -->
+
+  <section class="section" id="sop">
+    <div class="section-head">
+      <div class="section-no" style="background:var(--violet)">★</div>
+      <div class="section-title">
+        <h2>生产流程 + 硬检查表</h2>
+        <p>跨格式 SOP：横版 / 竖版 / Banner 共用同一套 10 步思考动作 + 9 段 prompt 输出模板 + 8 项硬检查；只在差异点上分叉。⚠️ 线性化 Prompt 前必须通过 8 项硬检查。</p>
+      </div>
+    </div>
+
+    <!-- ─────────── 子模块 1：10 步流程（跨格式） ─────────── -->
+    <div class="content">
+      <h3 class="lever-h" style="margin-top:0">① 10 步流程 · 跨格式</h3>
+      <p style="margin:0 0 10px;font-size:.85rem;line-height:1.55;color:var(--ink-soft)">这 10 步是思考动作 / 时间顺序，跨格式通用。差异只发生在「画幅取值」「线性化分段数」两处，已在右列标出。</p>
+      <div class="matrix" style="margin-bottom:0">
+        <table>
+          <thead><tr><th style="width:50px">#</th><th style="width:200px">步骤</th><th>共性动作</th><th style="width:300px">横 / 竖 / Banner 差异</th></tr></thead>
+          <tbody>
+            <tr><td><strong>1</strong></td><td><b>读取 DNA 与 gameplay_lock</b></td><td>先锁游戏原生风格、角色、玩法，不让画面跑偏</td><td>三格式通用</td></tr>
+            <tr><td><strong>2</strong></td><td><b>选择画幅</b></td><td>容器决定后续构图，先选母版再考虑裁切</td><td>横版 16:9 / 5:3 / 4:3 / 3:2<br>竖版 9:16 / 2:3 / 3:4 / 4:5<br>Banner 3.5:1 / 5.2:1 / 8:1（只裁宽不裁高）</td></tr>
+            <tr><td><strong>3</strong></td><td><b>填写构图层 4 维度</b></td><td>C1 视角 / C2 版式（archetype）/ C3 面积 / C4 动线；至少错开 3 个维度</td><td>三格式通用（取值池受画幅约束）</td></tr>
+            <tr><td><strong>4</strong></td><td><b>填写表现层</b></td><td>色彩 / 字体 / 光影 / 质感 + 商业信息密度</td><td>三格式通用</td></tr>
+            <tr><td><strong>5</strong></td><td><b>绑定故事变量</b></td><td>时间点 / 角色任务 / 观众关系 / 冲突 / 结果导向</td><td>三格式通用</td></tr>
+            <tr><td><strong>6</strong></td><td><b>Fidelity 自检（≥85%）</b></td><td>风格 / 角色 / 玩法 fidelity 都要 ≥85%；扫「高危杠杆值清单」，命中必须中和或换写法</td><td>三格式通用</td></tr>
+            <tr><td><strong>7</strong></td><td><b>线性化 Prompt</b></td><td>把契约转成自然英文段落，按下面「9 段 prompt 模板」结构组织</td><td>横版 / 竖版 = 5 段（容器 / 主体 / 表现 / 标题 / 负面）<br>Banner = 9 段（多 1.5 Composition Lock + 1.6 Safe-Crop）</td></tr>
+            <tr><td><strong>8</strong></td><td><b>追加负面锁</b></td><td>负面风格锁 + 负面玩法锁；覆盖高危误导（按钮 / UI / 截图框 / 巨字背景）</td><td>三格式通用</td></tr>
+            <tr><td><strong>9</strong></td><td><b>差异化矩阵自检</b></td><td>横向两列至少 3 行不同；否则返工（4 杠杆 L1×L2×L3×L4）</td><td>三格式通用</td></tr>
+            <tr><td><strong>10</strong></td><td><b>生成后复盘</b></td><td>实际图是否符合构图层与表现层？是否有玩法误导？反馈回填 SOP</td><td>三格式通用</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─────────── 子模块 2：9 段 prompt 输出模板（跨格式） ─────────── -->
+
+    <!-- ─────────── 子模块 2：主角分型（subject_type 路由 · v4.9 新增 · v4.10 加 scenario_puzzle） ─────────── -->
+    <div class="content" style="margin-top:8px;border-top:2px dashed rgba(23,21,18,.3);padding-top:18px">
+      <h3 class="lever-h" style="margin-top:0">② 主角分型</h3>
+      <p style="margin:0 0 10px;font-size:.85rem;line-height:1.55;color:var(--ink-soft)">写 prompt 前先回答一个问题：<b>这张图谁该占 C 位</b>？4 类主角分型决定该用哪个 archetype 池——硬塞错池子（比如三消游戏硬套 character 模板）会导致"角色站中间无意义"。subject_type ≠ 游戏类型（一个三消可能是 character 也可能是 gameplay_object，看这一张图想突出什么）。</p>
+
+      <h4 style="margin:0 0 8px;font-size:.95rem">主角四分型</h4>
+      <div class="matrix" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th style="width:140px">subject_type</th><th>典型案例</th><th>主体策略</th><th>archetype 池</th></tr></thead>
+          <tbody>
+            <tr><td><strong>character</strong></td><td>Royal Match / Come Match / 角色卡 RPG</td><td>角色 60%+，face/body 资产强一致</td><td>11 个 character archetype</td></tr>
+            <tr><td><strong>gameplay_object</strong></td><td>Grill Skewer Pop（三消）/ 物理消除 / 收集类</td><td>玩法物件 + 玩法证据 + combo burst；角色可缺席或 ≤25%</td><td>5 个 gameplay_object archetype</td></tr>
+            <tr><td><strong>hybrid</strong></td><td>Girl Rescue（救援解谜，角色 + 谜题对象）</td><td>角色 + 玩法 50/50 共存；标题锁两端都要可见</td><td>character + gameplay_object 池子合并</td></tr>
+            <tr><td><strong>scenario_puzzle</strong></td><td>Brain Trick / Brain Test / hidden object / brain teaser</td><td>情境线索锁：场景里"埋"线索物，等玩家发现</td><td>3 个 scenario_puzzle archetype</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 style="margin:14px 0 8px;font-size:.95rem">自动判定启发式</h4>
+      <div class="rule-card" style="background:#fff5e0">
+        <ul class="rule-list">
+          <li><b>gameName 正则</b>：含 <code>brain / trick / iq / test / riddle</code> → scenario_puzzle</li>
+          <li>含 <code>rescue / save / pull / draw</code> → hybrid（角色 + 谜题）</li>
+          <li>含 <code>match / pop / merge / blast / crush</code> → gameplay_object（三消/合并）</li>
+          <li><b>资产证据</b>：character 资产 ≥ 1 张 → character；character = 0 + screenshot 显示物件矩阵 → gameplay_object</li>
+          <li><b>fallback</b>：无法判定时默认 character（最大兼容性）</li>
+        </ul>
+      </div>
+    </div>
+    <div class="content" style="margin-top:8px;border-top:2px dashed rgba(23,21,18,.3);padding-top:18px">
+      <h3 class="lever-h" style="margin-top:0">③ 9 段 prompt 输出模板 · 跨格式</h3>
+      <p style="margin:0 0 10px;font-size:.85rem;line-height:1.55;color:var(--ink-soft)">这 9 段是最终 prompt 的输出结构（① 10 步流程 Step 7 线性化时使用）。横版 / 竖版用其中 5 段（容器 → Title Lock → 主体 → 连接 → 负面），Banner 因贴边裁切风险大额外加段 1.5 Composition Lock 与段 1.6 Safe-Crop。</p>
+
+      <details style="margin:0 0 12px;border:2px solid var(--ink);background:#fff5e0">
+        <summary style="padding:8px 12px;cursor:pointer;font-weight:900;font-size:.85rem">📋 段落结构 + 扩充准则（这 9 段从哪儿来 / 怎么加新段）</summary>
+        <div style="padding:10px 14px 12px;border-top:2px solid var(--ink);font-size:.82rem;line-height:1.65">
+          <b>来源</b>：9 段是从大量翻车实证里反向倒推的<b>最小必备结构</b>——每一段都解决一类反复出现的具体翻车（比如段 1 不写 → 模型按默认尺寸出；段 6 不写 → UI/按钮/no text 等高频翻车没拦住）。这不是"设计完美"的产物，是经验沉淀的快照。
+
+          <div style="margin-top:10px"><b>段落 DNA（5 字段元组）</b>：每个段都该有这 5 个字段。新增段落时缺一个都不该入表。</div>
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li><b>段号</b>：整数号（通用段）/ 小数号（格式特化段，如 1.5 仅 Banner）</li>
+            <li><b>名称</b>：能在 prompt 里直接当 section header 用（如 <code>[Title Lock]</code>）</li>
+            <li><b>职责</b>：这段解决什么问题（一句话）</li>
+            <li><b>内容</b>：prompt 里要写的具体英文文案 / 或槽位变量（用 <code>&lt;...&gt;</code> 标）</li>
+            <li><b>三格式差异</b>：横/竖/Banner 在这一段的表现差异（值不同 / 取值池不同 / 跳过此段）</li>
+            <li>（隐含）<b>翻车证据</b>：哪次实战的什么翻车导致这段被加进来——不写在表格里但应在 D 表「项目翻车账本」溯源</li>
+          </ul>
+
+          <div style="margin-top:10px"><b>✅ 应新增段落</b></div>
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li><b>新型翻车反复出现，现有 8 段都救不了</b>（如：发现"三消画出来 UI 像截图"，需要"风格基调锁"段说服模型 commercial poster style）</li>
+            <li><b>某格式独有的硬约束没地方放</b>（如：竖版海报特有的"商业信息密度锁"——号召力区 / 价格区 / CTA 区留白）→ 用小数号插入</li>
+            <li><b>AI 模型新版本需要新的引导段</b>（如：新模型默认带水印 → 增加"防水印锁"段）</li>
+            <li><b>subject_type 扩展导致需要新主体段</b>（如：新增第 5 类 subject_type，段 3 拆成段 3.1/3.2）</li>
+          </ul>
+
+          <div style="margin-top:10px;color:#8b4513"><b>❌ 不该新增段落</b></div>
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li>取值池更新（如新增"暖光"色彩选项）→ 进<b>全局表现因素层</b></li>
+            <li>一次性某游戏的特殊文案 → 进 D 表<b>项目翻车账本</b>，不进通用模板</li>
+            <li>改进 prompt 描述的措辞优化 → <b>更新对应段「内容」字段</b>，不新增段</li>
+            <li>纯形式问题（如 negative 漏写、L1-L4 没显式列出）→ 进 <b>④ 8 项硬检查 P 表</b>，不进段落</li>
+            <li>纯设计原则（如背景空了、版式散）→ 进 <b>表现层底线 / Banner 构图三条底线</b>，不进段落</li>
+          </ul>
+
+          <div style="margin-top:10px"><b>编号规则</b></div>
+          <ul style="margin:6px 0 0;padding-left:20px">
+            <li><b>整数号</b>（段 7 / 段 8）：三格式都需要的通用段</li>
+            <li><b>小数号</b>（段 4.5）：仅某格式需要的特化段，标注「仅 X」</li>
+            <li><b>差异变体不拆段</b>：如果只是某段在某格式下取值不同（不是缺该职责），写在「三格式差异」列里，不拆新段</li>
+          </ul>
+
+          <div style="margin-top:10px;padding:8px 10px;background:#fff;border-left:3px solid var(--violet);font-size:.8rem">
+            <b>扩充工作流</b>：实证翻车 → 判断原因（缺段 / 内容描述不到位 / 仅形式 / 仅设计原则） → 仅当"缺职责段"才新增段落，按 5 字段填齐 → 同时在 D 表登记本次翻车作为段落新增的<b>来源溯源</b>。
+          </div>
+        </div>
+      </details>
+
+      <div class="matrix" style="margin-bottom:0">
+        <table>
+          <thead><tr><th style="width:120px">段落</th><th>内容</th><th style="width:280px">横 / 竖 / Banner 差异</th></tr></thead>
+          <tbody>
+            <tr><td><strong>段落 1<br>容器声明</strong></td><td><code>A &lt;ratio&gt; commercial &lt;orientation&gt; game &lt;type&gt; for &lt;genre&gt; called "&lt;game_name&gt;"</code></td><td>横版 horizontal cover / 竖版 vertical poster / Banner horizontal banner；ratio 按 Step 2 取值</td></tr>
+            <tr><td><strong>段落 1.5<br>Composition Lock</strong>（仅 Banner）</td><td>商业横幅版式：大标题模块 + 大主体 + 图形背景 + 1~3 玩法符号</td><td>仅 Banner 用；横版 / 竖版略过</td></tr>
+            <tr><td><strong>段落 1.6<br>Safe-Crop</strong>（按格式分叉）</td><td>明确写出主体安全区，避免裁切丢失关键信息</td><td>横版：16:9 中央 75% 宽度（左右各 12.5% 可裁背景）<br>竖版：9:16 中央 70% 高度（上下各 15% 可裁背景）<br>Banner：只裁宽度不裁高度，按档位母版 3.5:1 (74%×90%) / 5.2:1 (76%×90%) / 8:1 (74%×90%)</td></tr>
+            <tr><td><strong>段落 2<br>Title Lock</strong></td><td>单层清晰 exact title；位置可居中 / 中上 / 侧中 / 边缘；禁止重复标题层和背景巨字层</td><td>三格式通用（按 P1/P2 硬检查规范）</td></tr>
+            <tr><td><strong>段落 3<br>主体 / 玩法</strong></td><td>按 subject_type 写 Subject Lock / Game Asset Lock / Scenario Puzzle Lock（详见上方 ② 主角分型）</td><td>三格式通用</td></tr>
+            <tr><td><strong>段落 4<br>连接与节奏</strong></td><td>标题和主体用运动线 / 光束 / 透视路 / 粒子 / 物体重叠连接，避免元素散落</td><td>三格式通用</td></tr>
+            <tr><td><strong>段落 5<br>光影色彩</strong></td><td>按表现因素层（色彩 / 光影 / 质感）写出主调和氛围</td><td>三格式通用</td></tr>
+            <tr><td><strong>段落 6<br>负面词</strong></td><td>禁止 UI / 按钮 / 截图框 / 空色块 / 关键元素触边 / 截断主体或标题；禁止 duplicate title layers / giant background title text</td><td>三格式通用</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─────────── 子模块 3：标准开场框 + 8 项硬检查 ─────────── -->
+    <div class="content" style="margin-top:8px;border-top:2px dashed rgba(23,21,18,.3);padding-top:18px">
+      <h3 class="lever-h" style="margin-top:0">④ 标准开场框 + 8 项硬检查（线性化 Prompt 前必过）</h3>
+      <div style="border:2px solid var(--ink);background:#fff7e8;box-shadow:3px 3px 0 var(--ink);padding:14px 16px;margin-bottom:14px">
+        <div style="font-family:Georgia,serif;font-size:1.15rem;font-weight:900;margin-bottom:8px">📋 标准开场框（每次必输出）</div>
+        <pre style="margin:0;white-space:pre-wrap;border:2px solid var(--ink);background:#171512;color:#fff3d8;padding:10px;font-size:.78rem;line-height:1.55">游戏：&lt;游戏名&gt;
+玩法识别：&lt;三消 / 解谜 / 救援 / brain teaser / ...&gt;
+subject_type：&lt;character / gameplay_object / hybrid / scenario_puzzle&gt;
+默认输出：A / B / C 三套独立剧本（每套 4 杠杆错开 ≥3）
+横版安全裁切：16:9 母版主体锁中央 75% 宽度，左右各 12.5% 只放可裁切背景，兼容 5:3 / 4:3 / 3:2；2:1 作为横向宽屏特例从 16:9 裁上下
+竖版安全裁切：9:16 母版主体锁中央 70% 高度，上下各 15% 只放可裁切背景，兼容 2:3 / 3:4 / 4:5
+长条 banner 安全裁切：只裁宽度，不裁高度；标准长条 3.5:1 母版（74%×90% 安全区），超长 5.2:1 母版（76%×90% 安全区），极窄广告条 8:1 母版（74%×90% 安全区）
+Banner 构图模板：先选模板再写 prompt（详见 Banner Tab → 03 选择构图模板）
+游戏名标题规则：所有 prompt 显式标 `[Title Lock — Flexible Single Title 2.1]`；只保留一层清晰标题，位置可居中/中上/侧中/边缘，但禁止机械贴边和角落小贴片
+Negative：禁止裸写 no text；改写 `No extra readable text except the exact game title "&lt;游戏名&gt;"`，并禁止 duplicate title layers / giant background title text</pre>
+      </div>
+
+      <h4 style="margin:6px 0 8px;font-size:.95rem">8 项硬检查表（纯 prompt 形式校验 · 三格式通用）</h4>
+      <p style="margin:0 0 8px;font-size:.78rem;line-height:1.5;color:var(--ink-soft)">
+        本表只校验 <b>prompt 文本是否合规</b>（标题段格式 / Negative 写法 / 是否多方案 / 杠杆是否显式 ...），不管「画面好不好看」。<b>Banner / 竖版 / 横版的设计原则</b>（版式骨架、面积分配、动线、背景质感）属于<b>构图层 / 表现因素层</b>，请去对应的 Format Adapter 02 构图层 / 全局表现因素层查阅。
+      </p>
+      <div class="matrix" style="margin-bottom:14px">
+        <table>
+          <thead><tr><th style="width:60px">#</th><th>检查项</th><th>未通过表现</th><th>修法</th></tr></thead>
+          <tbody>
+            <tr><td><strong>P1</strong></td><td>游戏名是否是单层清晰标题（Title Lock 2.1 段）</td><td>标题像贴边 logo / UI 标题，只悬浮在顶部或角落；或错误生成双层/背景巨字标题</td><td>新增独立段 <code>[Title Lock — Flexible Single Title 2.1]</code>：只保留一层清晰标题，位置可居中/中上/侧中/边缘，但禁止机械贴边和角落小贴片。<br><b>Banner 子规则</b>：标题必须是主视觉块（宽 25~55% 或 高 40~80%），<b>不是角落 logo</b></td></tr>
+            <tr><td><strong>P2</strong></td><td>Negative 是否裸写 no text / no logo</td><td>与 P1 自相矛盾，或允许了重复标题层/背景巨字层</td><td>改 <code>No extra readable text except the exact game title "&lt;游戏名&gt;"</code>，并禁止 duplicate title layers / giant background title text</td></tr>
+            <tr><td><strong>P3</strong></td><td>是否默认 A/B/C 三套剧本</td><td>只给一条 prompt，用户得追问</td><td>不等用户提醒，默认输出 ≥3 套差异化方案</td></tr>
+            <tr><td><strong>P4</strong></td><td>subject_type 是否显式判定</td><td>所有游戏都按 character archetype 套，无人物题材出"人物广告"</td><td>开场框先判 subject_type，再选取值池（详见 ② 主角分型）</td></tr>
+            <tr><td><strong>P5</strong></td><td>每条 prompt 是否显式写 L1/L2/L3/L4</td><td>四杠杆藏在 DNA 描述里不可见</td><td>每条 prompt 都要列 <code>L1 camera: ... · L2 lighting: ... · L3 setting: ... · L4 visual weight: ...</code></td></tr>
+            <tr><td><strong>P6</strong></td><td>差异化矩阵是否先输出</td><td>方案之间只错 1-2 个杠杆，是伪分叉</td><td>写 prompt 前先列 4×3 差异化表格，自检至少错 3 行</td></tr>
+            <tr><td><strong>P7</strong></td><td>玩法 Fidelity 是否扫高危值</td><td>休闲拼图画成桌游 / brain teaser 画成动作</td><td>Step 0.5 玩法 Fidelity 自检，命中高危必须中和或换写法</td></tr>
+            <tr><td><strong>P8</strong></td><td>出海素材 safe-crop 是否写入</td><td>横版/竖版/长条 banner 贴边构图，裁切后标题、主体或玩法证据被切掉；或 banner 错误裁高度导致画面被压扁</td><td>横版：16:9 中央 75% 宽度；竖版：9:16 中央 70% 高度；banner：只裁宽度三档母版 3.5:1 / 5.2:1 / 8:1，上下不裁高度</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── AI 默认行为规则（输出前自检 · 2026-05-29 v4.4） ── -->
+  <section class="section" id="ai-default-rules" aria-label="AI 默认行为规则 · 输出前自检">
+    <div class="section-head">
+      <div class="section-no" style="background:var(--red)">⚡</div>
+      <div class="section-title">
+        <h2>输出前自检 · AI 默认行为规则</h2>
+        <p>线性化 Prompt 后、发送给模型前的最后一道关。这 5 条是默认行为，不需用户提醒。违反任何一条 → 视为 SOP 不合规，需返工。</p>
+      </div>
+    </div>
+    <div class="content">
+      <div class="rule-card" style="margin-bottom:12px;border-color:var(--red)">
+        <div class="rule-formula">
+          <span class="formula-big" style="color:var(--red)">规则 1：默认出多题材方案</span>
+          <span class="formula-sub">≥3 个故事题材方案供选择，不需用户提醒</span>
+        </div>
+        <ul class="rule-list">
+          <li>用户没说"只要 1 个" → 默认出至少 3 个方案</li>
+          <li>每个方案绑定独立的故事维度组合 + 独立的 4 杠杆取值</li>
+          <li>先输出差异化矩阵，用户确认后再写 prompt</li>
+        </ul>
+      </div>
+      <div class="rule-card" style="margin-bottom:12px;border-color:var(--red)">
+        <div class="rule-formula">
+          <span class="formula-big" style="color:var(--red)">规则 2：每条 prompt 必须显式包含 L1/L2/L3/L4</span>
+          <span class="formula-sub">思考契约 → 线性化时全部写入 prompt，不能省略</span>
+        </div>
+        <ul class="rule-list">
+          <li>每条 prompt 必须显式写出：<code>L1 camera: &lt;值&gt;</code> / <code>L2 lighting: &lt;值&gt;</code> / <code>L3 setting: &lt;值&gt;</code> / <code>L4 visual weight: &lt;值&gt;</code></li>
+          <li>示例：<code>L1 camera: low-angle heroic shot · L2 lighting: warm golden hour · L3 setting: throne hall · L4 visual weight: hero dominant 65%+</code></li>
+          <li>这四个杠杆必须在 prompt 里可见，不能隐藏在 DNA 描述里不单独写出</li>
+        </ul>
+      </div>
+      <div class="rule-card" style="margin-bottom:12px;border-color:var(--red)">
+        <div class="rule-formula">
+          <span class="formula-big" style="color:var(--red)">规则 3：绝对禁止出现游戏按钮</span>
+          <span class="formula-sub">默认情况下永远不允许，每条 prompt 负面锁必带</span>
+        </div>
+        <ul class="rule-list">
+          <li><strong>默认禁止</strong>：购买按钮 / download button / app store badge / 评分按钮 / 分享按钮</li>
+          <li>每条 prompt 必须包含负面锁：<code>Do not include any purchase button, download button, app store badge, rating button, share button, or any call-to-action button in the image.</code></li>
+          <li>例外：只有用户明确要求「强转化买量广告卡」并明确说要展示按钮时才允许</li>
+        </ul>
+      </div>
+      <div class="rule-card" style="margin-bottom:12px;border-color:var(--red)">
+        <div class="rule-formula">
+          <span class="formula-big" style="color:var(--red)">规则 4：主动应用 4 杠杆差异化</span>
+          <span class="formula-sub">不等待用户提醒，这是不需要说的默认行为</span>
+        </div>
+        <ul class="rule-list">
+          <li>每次出多方案时，必须先输出 L1 × L2 × L3 × L4 × N 方案的差异化矩阵表格</li>
+          <li>自检：每两个方案之间至少错开 <strong>3 / 4 个杠杆</strong>，否则视为伪分叉需返工</li>
+          <li>4 杠杆差异化是每次生成多方案时的默认行为，不需要用户说"记得用差异化策略"</li>
+        </ul>
+      </div>
+      <div class="rule-card" style="border-color:var(--red)">
+        <div class="rule-formula">
+          <span class="formula-big" style="color:var(--red)">规则 5：角色资产剥离（v4.7 升级 — AI 内部闭环）</span>
+          <span class="formula-sub">⚠️ 三次反馈打脸：工具链整合是 AI 本职工作，不是用户负担</span>
+        </div>
+        <ul class="rule-list">
+          <li><strong>v4.5 教训</strong>：仅在 prompt 写 Subject Lock 段 → 模型不"看"参考图 → 角色被自由重绘</li>
+          <li><strong>v4.6 教训</strong>：给用户三条工具路径让他自己选/上传/切平台 → 等于改用户流程、新增工序</li>
+          <li><strong>v4.7 修正</strong>：AI 自动跑 <b>3000 MCP 工具链闭环</b>，用户输入端零变化（依然只给 icon + 截图 + 游戏名）</li>
+          <li>　 ① <code>3000_comfyui_divide</code>：拆主角 / 配角 / 背景 → 透明 PNG 图层</li>
+          <li>　 ② <code>3000_generate_image</code>（model=gpt-image-2, image=PNGs, input_fidelity=high）→ 图生图</li>
+          <li>　 ③ AI 自己跑异步轮询 + 取图 + 给用户最终图（用户对工具链零感知）</li>
+          <li><strong>架构教训</strong>：v4.6 在工具层立约束没错，错在搞错执行主体——是 AI 调工具，不是让用户调工具</li>
+        </ul>
+      </div>
+      <div style="margin-top:12px;padding:11px 13px;border:2px dashed var(--red);background:#fff5f5;font-size:.85rem;line-height:1.55;color:#8b0000">
+        <b>违反处理</b>：未出多方案 / prompt 缺 L1-L4 显式表述 / 无按钮负面锁 / 未先输出差异化矩阵 / 用 generic chibi 自由重绘人物 / 只交付纯 prompt / <b>AI 让用户切平台 or 当工具搬运工 or 自己上传图</b> → 视为 SOP 不合规，用户可要求返工。AI 必须主动记住这 5 条，不需要用户每次提醒。
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="checklist">
+    <div class="section-head">
+      <div class="section-no" style="background:var(--violet)">★</div>
+      <div class="section-title">
+        <h2>版式骨架速查</h2>
+        <p>如果只记一张表，用这张。C2 版式 archetype 的比例公式 + 第一眼 + 高危风险。</p>
+      </div>
+    </div>
+    <div class="content">
+      <div class="matrix">
+        <table>
+          <thead><tr><th>模板</th><th>比例公式</th><th>第一眼</th><th>高危风险</th></tr></thead>
+          <tbody>
+            <tr><td><strong>暗黑电影感</strong></td><td>人物 55 / 环境 35 / 文字 10</td><td>人物轮廓</td><td>太暗导致主体不清</td></tr>
+            <tr><td><strong>电竞赛车</strong></td><td>标题 25 / 主体 55 / 速度线 20</td><td>大标题或冲刺主体</td><td>装饰过多抢主体</td></tr>
+            <tr><td><strong>极简巨物</strong></td><td>留白 45 / 巨物 40 / 人物标题 15</td><td>巨大象征物</td><td>留白变空洞</td></tr>
+            <tr><td><strong>群像拼贴</strong></td><td>主视觉 40 / 分格 40 / 标题 20</td><td>中心 Logo</td><td>分格平均无焦点</td></tr>
+            <tr><td><strong>运动编辑</strong></td><td>留白 45 / 几何线 35 / 载具 20</td><td>速度线或巨大字</td><td>主体过小无商业冲击</td></tr>
+            <tr><td><strong>休闲活动</strong></td><td>标题 22 / 爆点 55 / 商业 13 / 装饰 10</td><td>中心爆光</td><td>信息堆满失去主次</td></tr>
+            <tr><td><strong>水墨负形</strong></td><td>大剪影 55 / 人物 25 / 留白文字 20</td><td>黑色大形</td><td>墨迹无明确形状</td></tr>
+            <tr><td><strong>三层景深</strong></td><td>前景 15 / 主体 50 / 远景 25 / 标题 10</td><td>中景主体</td><td>前景遮挡过重</td></tr>
+            <tr><td><strong>复古叙事电影</strong></td><td>手绘 60 / 场景 30 / 文字 10</td><td>插画主体</td><td>过于年代感不适合主流</td></tr>
+            <tr><td><strong>巨物尺度差</strong></td><td>人物 ≤5 / 巨像 80 / 文字 10</td><td>顶天立地巨物</td><td>人物太小失去点击动机</td></tr>
+            <tr><td><strong>广告卡片</strong></td><td>卡片 65 / 破框元素 20 / 按钮 10 / 文字 5</td><td>破框 3D 元素</td><td>过于买量感不适合品牌</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SUMMARY PANEL ── -->
+  <aside class="summary" aria-label="当前选择摘要">
+    <div class="summary-head">
+      <h2>当前 Brief</h2>
+      <p id="summaryHint">点击左侧选项，生成结构化思考契约。</p>
+    </div>
+    <div class="summary-body">
+      <div class="selected-list" id="selectedList"></div>
+      <pre class="brief" id="brief"></pre>
+      <div class="actions">
+        <button class="action" id="copyBtn">复制 Brief</button>
+        <button class="action secondary" id="resetBtn">恢复默认</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── 主源 / 配套资源（v5.0 起） ── -->
+  <div style="margin:32px 0 0;padding:14px 18px;border:2px solid var(--ink);background:#fff7e8;font-size:.82rem;line-height:1.7;color:var(--ink-soft)">
+    <div style="font-weight:900;color:var(--ink);margin-bottom:6px">📌 v5.0 主源对应（2026-06-05 起）</div>
+    <div>本控制台是 <b>v5.0 学习/查阅入口</b>。SOP 知识源以下面文件为单一真相源，AI 与团队成员请按此引用：</div>
+    <ul style="margin:6px 0 0;padding-left:22px">
+      <li><b>工作流总纲</b>（必读）：<code>soul/workflows/game-cover-sop.md</code></li>
+      <li><b>本控制台</b>（学习/查阅）：<code>wiki/sources/game-poster-learning-sop/cover.html</code></li>
+      <li><b>真出图工作站</b>（v5 同步进行中）：<code>tools/game-cover-sop/</code> · <code>localhost:3737</code></li>
+      <li><b>历史主源 v4.x</b>（保留作演进史，不再优先采纳）：<br>
+        &nbsp;&nbsp;&nbsp;<code>biz-wiki/game/narrative-driven-cover-variants.md</code>（横版方法论 v4）<br>
+        &nbsp;&nbsp;&nbsp;<code>biz-wiki/game/game-poster-learning-sop.md</code>（竖版 SOP v4）</li>
+      <li><b>决策记录</b>：<code>soul/decisions-log.md</code> 搜索 <code>v5.0</code></li>
+    </ul>
+  </div>
+
+</main>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+// 全局通用组（表现因素 + 叙事变量），所有格式共享
+const globalGroups = [
+  "global_color","global_type","global_lighting","global_texture",
+  "global_moment","global_goal","global_viewer","global_conflict","global_reward"
+];
+const posterGroups = [
+  "poster_aspect_ratio","poster_archetype","poster_motion","poster_title_wt","poster_hero_wt"
+];
+const coverGroups = [
+  "cover_aspect_ratio","cover_L1_camera","cover_L2_lighting","cover_L3_scene","cover_L4_weight"
+];
+const bannerGroups = [
+  "banner_aspect_ratio","banner_template"
+];
+let activeFormat = "vertical_poster";
+
+function getActiveGroups() {
+  if (activeFormat === "horizontal_cover") return [...coverGroups, ...globalGroups];
+  if (activeFormat === "wide_banner") return [...bannerGroups, ...globalGroups];
+  return [...posterGroups, ...globalGroups];
+}
+
+// ─── Defaults ────────────────────────────────────────────────────────────────
+const defaults = {};
+document.querySelectorAll(".option[aria-pressed='true']").forEach(btn => {
+  defaults[btn.dataset.group] = btn;
+});
+
+// ─── State read ──────────────────────────────────────────────────────────────
+function getState() {
+  const state = {};
+  getActiveGroups().forEach(group => {
+    const active = document.querySelector(`.option[data-group="${group}"][aria-pressed="true"]`);
+    if (active) {
+      state[group] = {
+        label: active.dataset.label,
+        value: active.dataset.value,
+        note: active.dataset.note
+      };
+    }
+  });
+  return state;
+}
+
+// ─── Brief text ──────────────────────────────────────────────────────────────
+function getInputs() {
+  const name = (document.getElementById("in-name").value || "").trim();
+  const gameType = document.getElementById("in-gametype").value || "";
+  const iconReady = !!document.getElementById("prev-icon").classList.contains("has-img");
+  const shotReady = !!document.getElementById("prev-shot").classList.contains("has-img");
+  const passed = !!name && !!gameType && iconReady && shotReady;
+  return {
+    game_name: name || null,
+    game_type: gameType || null,
+    icon_provided: iconReady,
+    gameplay_screenshot_provided: shotReady,
+    intake_check_passed: passed,
+    reference_only_policy: {
+      icon_reference_only: true,
+      screenshot_reference_only: true,
+      output_forbidden_by_default: [
+        "purchase button",
+        "download button",
+        "app store badge",
+        "rating button",
+        "share button",
+        "call-to-action button"
+      ]
+    }
+  };
+}
+
+function briefText(state) {
+  const inputs = getInputs();
+  if (activeFormat === "wide_banner") {
+    return JSON.stringify({
+      format_adapter: state.banner_aspect_ratio?.value === "8:1" ? "extreme_strip_ad" : state.banner_aspect_ratio?.value === "5.2:1" ? "ultra_long_banner" : "standard_long_banner",
+      inputs,
+      aspect_ratio: state.banner_aspect_ratio?.value || "3.5:1",
+      banner_template: state.banner_template?.value || null,
+      expression_layer: {
+        color_mode: state.global_color?.value || null,
+        type_personality: state.global_type?.value || null,
+        lighting: state.global_lighting?.value || null,
+        texture: state.global_texture?.value || null
+      },
+      story_mode: {
+        moment: state.global_moment?.value || null,
+        character_goal: state.global_goal?.value || null,
+        viewer_relation: state.global_viewer?.value || null,
+        conflict_level: state.global_conflict?.value || null,
+        reward_signal: state.global_reward?.value || null
+      },
+      banner_safe_crop: "width-only crop; never crop height; keep critical content inside centered safe rectangle; left/right are expendable background only; top/bottom 5% are breathing margins only",
+      banner_composition_lock: "commercial banner layout, not cropped gameplay screenshot: dominant title mass + oversized hero/key object + graphic background + 1-3 gameplay/reward/event symbols; every horizontal third must have a role; no empty flat slab",
+      six_locks: [
+        "Banner Safe-Crop Lock — only crop width, never crop height",
+        "Modular Layout Lock — title module / hero module / auxiliary symbol module; each horizontal third has a role",
+        "Title Mass Lock — title is dominant visual mass (25-55% width or 40-80% height), not a corner logo",
+        "Hero Scale Lock — hero commercially enlarged, side cut-in / break-frame / partial crop allowed",
+        "Graphic Background Lock — no empty flat color; must have gradients / light effects / diagonal bands / texture / particles / silhouettes",
+        "Module Connection Lock — title and hero connected by motion line / light beam / particle trail / object overlap / shared lighting"
+      ],
+      hard_rules: [
+        "Step 0: intake_check_passed MUST be true before generating.",
+        "Never guess game name from training prior; require user-provided text.",
+        "Reference-only: provided icon and screenshots must NOT appear as visual elements in the final banner.",
+        "v4.15 Preflight P1 — Flexible Single Title 2.1: ONE clear readable exact game title only.",
+        "v4.15 Preflight P2 — Negative: 'No extra readable text except the exact game title'; no duplicate title layers; no giant background title text.",
+        "v4.10 Preflight P3 — Default A/B/C three variants.",
+        "v4.10 Preflight P4 — Detect subject_type first.",
+        "v4.16 — Banner width-only crop: 3.5:1 (74%w×90%h), 5.2:1 (76%w×90%h), 8:1 (74%w×90%h). NEVER crop height.",
+        "v4.17 — Choose banner template BEFORE writing prompt.",
+        "v4.17 — Apply all 6 composition locks.",
+        "Negative lock: no purchase button, no download button, no app store badge.",
+        "Keep style, character and gameplay fidelity >= 85%.",
+        "Linearize into natural English before sending to image models."
+      ]
+    }, null, 2);
+  } else if (activeFormat === "vertical_poster") {
+    return JSON.stringify({
+      format_adapter: "vertical_poster",
+      inputs,
+      aspect_ratio: state.poster_aspect_ratio?.value || null,
+      proportion_layer: {
+        poster_archetype: state.poster_archetype?.value || null,
+        title_weight: state.poster_title_wt?.value || null,
+        hero_weight: state.poster_hero_wt?.value || null,
+        motion_axis: state.poster_motion?.value || null
+      },
+      expression_layer: {
+        color_mode: state.global_color?.value || null,
+        type_personality: state.global_type?.value || null,
+        lighting: state.global_lighting?.value || null,
+        texture: state.global_texture?.value || null
+      },
+      story_mode: {
+        moment: state.global_moment?.value || null,
+        character_goal: state.global_goal?.value || null,
+        viewer_relation: state.global_viewer?.value || null,
+        conflict_level: state.global_conflict?.value || null,
+        reward_signal: state.global_reward?.value || null
+      },
+      hard_rules: [
+        "Step 0: intake_check_passed MUST be true before generating.",
+        "Never guess game name from training prior; require user-provided text.",
+        "Reference-only: provided icon and screenshots must NOT appear as visual elements in the final poster.",
+        "v4.15 Preflight P1 — Flexible Single Title 2.1: every prompt MUST include a `[Title Lock — Flexible Single Title 2.1]` segment with ONE clear readable exact game title only; placement can be center / upper-center / side-center / composed edge placement, but never a tiny isolated corner sticker or mechanically glued top-edge logo.",
+        "v4.15 Preflight P2 — Negative must NOT bare-write 'no text / no logo'; rewrite as 'No extra readable text except the exact game title \"<game_name>\"; no duplicate title layers; no giant background title text'.",
+        "v4.10 Preflight P3 — Default to A/B/C three independent scripts; do not collapse to one prompt unless user explicitly asks.",
+        "v4.10 Preflight P4 — Detect subject_type first: character / gameplay_object / hybrid / scenario_puzzle. Route archetype pool accordingly.",
+        "v4.16 Preflight P8 — Vertical poster crop spec: 9:16 master (1080×1920) with centered 70% height safe zone; crop top/bottom to derive 2:3 / 3:4 / 4:5 sub-ratios.",
+        "Negative lock: no purchase button, no download button, no app store badge, no rating button, no share button, no call-to-action button.",
+        "Fill proportion_layer before expression_layer.",
+        "Keep style, character and gameplay fidelity >= 85%.",
+        "Do not mislead the real gameplay genre.",
+        "Linearize this contract into natural English before sending to image models."
+      ]
+    }, null, 2);
+  } else {
+    return JSON.stringify({
+      format_adapter: "horizontal_cover",
+      inputs,
+      aspect_ratio: state.cover_aspect_ratio?.value || null,
+      four_lever_matrix: {
+        L1_camera: state.cover_L1_camera?.value || null,
+        L2_lighting: state.cover_L2_lighting?.value || null,
+        L3_scene: state.cover_L3_scene?.value || null,
+        L4_hero_weight: state.cover_L4_weight?.value || null
+      },
+      expression_layer: {
+        color_mode: state.global_color?.value || null,
+        type_personality: state.global_type?.value || null,
+        lighting: state.global_lighting?.value || null,
+        texture: state.global_texture?.value || null
+      },
+      story_mode: {
+        moment: state.global_moment?.value || null,
+        character_goal: state.global_goal?.value || null,
+        viewer_relation: state.global_viewer?.value || null,
+        conflict_level: state.global_conflict?.value || null,
+        reward_signal: state.global_reward?.value || null
+      },
+      hard_rules: [
+        "Step 0: intake_check_passed MUST be true before generating.",
+        "Never guess game name from training prior; require user-provided text.",
+        "Reference-only: provided icon and screenshots must NOT appear as visual elements in the final cover.",
+        "v4.15 Preflight P1 — Flexible Single Title 2.1: every prompt MUST include a `[Title Lock — Flexible Single Title 2.1]` segment with ONE clear readable exact game title only; placement can be center / upper-center / side-center / composed edge placement, but never a tiny isolated corner sticker or mechanically glued top-edge logo.",
+        "v4.15 Preflight P2 — Negative must NOT bare-write 'no text / no logo'; rewrite as 'No extra readable text except the exact game title \"<game_name>\"; no duplicate title layers; no giant background title text'.",
+        "v4.10 Preflight P3 — Default to A/B/C three independent scripts; do not collapse to one prompt unless user explicitly asks.",
+        "v4.10 Preflight P4 — Detect subject_type first: character / gameplay_object / hybrid / scenario_puzzle. Route archetype pool accordingly.",
+        "v4.16 Preflight P8 — Horizontal cover crop spec: 16:9 master (1920×1080) with centered 75% width safe zone; crop left/right margins to derive 5:3 / 4:3 / 3:2 sub-ratios.",
+        "Negative lock: no purchase button, no download button, no app store badge, no rating button, no share button, no call-to-action button.",
+        "4-lever matrix: at least 3 of 4 levers must differ between variants.",
+        "Check high-risk lever values (俯视棋盘 ⚠️ / wooden board ⚠️).",
+        "Keep style, character and gameplay fidelity >= 85%.",
+        "Linearize this contract into natural English before sending to image models."
+      ]
+    }, null, 2);
+  }
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render() {
+  const state = getState();
+  const groups = getActiveGroups();
+  const selectedList = document.getElementById("selectedList");
+  selectedList.innerHTML = groups.map(group => {
+    const item = state[group];
+    if (!item) return "";
+    return `<div class="selected-item"><b>${item.label}: ${item.value}</b><span>${item.note}</span></div>`;
+  }).join("");
+  document.getElementById("brief").textContent = briefText(state);
+}
+
+// ─── Format adapter switch ────────────────────────────────────────────────────
+const tabCover = document.getElementById("tab-cover");
+const tabPoster = document.getElementById("tab-poster");
+const tabBanner = document.getElementById("tab-banner");
+const hint = document.getElementById("adapterHint");
+const secCover = document.getElementById("section-cover");
+const secPoster = document.getElementById("section-poster");
+const secBanner = document.getElementById("section-banner");
+const summaryHint = document.getElementById("summaryHint");
+
+function switchAdapter(tab) {
+  const allTabs = [tabCover, tabPoster, tabBanner];
+  const allSecs = [secCover, secPoster, secBanner];
+  allTabs.forEach(t => t.setAttribute("aria-pressed", "false"));
+  allSecs.forEach(s => s.classList.remove("active"));
+  tab.setAttribute("aria-pressed", "true");
+}
+
+tabCover.addEventListener("click", () => {
+  activeFormat = "horizontal_cover";
+  switchAdapter(tabCover);
+  summaryHint.textContent = "横向封面 · 4 杠杆 + 叙事维度";
+  secCover.classList.add("active");
+  document.getElementById("copyBtn").textContent = "复制 Brief";
+  render();
+});
+
+tabPoster.addEventListener("click", () => {
+  activeFormat = "vertical_poster";
+  switchAdapter(tabPoster);
+  summaryHint.textContent = "竖版海报 · 比例层 + 表现层 + 叙事";
+  secPoster.classList.add("active");
+  document.getElementById("copyBtn").textContent = "复制 Brief";
+  render();
+});
+
+tabBanner.addEventListener("click", () => {
+  activeFormat = "wide_banner";
+  switchAdapter(tabBanner);
+  summaryHint.textContent = "Banner · 只裁宽度 + 模板锁 + 6 构图锁";
+  secBanner.classList.add("active");
+  document.getElementById("copyBtn").textContent = "复制 Brief";
+  render();
+});
+
+// ─── Option click ──────────────────────────────────────────────────────────────
+document.querySelectorAll(".option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const group = btn.dataset.group;
+    document.querySelectorAll(`.option[data-group="${group}"]`).forEach(p => {
+      p.setAttribute("aria-pressed", "false");
+    });
+    btn.setAttribute("aria-pressed", "true");
+    render();
+  });
+});
+
+// ─── Copy & Reset ──────────────────────────────────────────────────────────────
+document.getElementById("copyBtn").addEventListener("click", async () => {
+  const text = document.getElementById("brief").textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    document.getElementById("copyBtn").textContent = "已复制";
+    setTimeout(() => document.getElementById("copyBtn").textContent = "复制 Brief", 1200);
+  } catch (_) {
+    document.getElementById("copyBtn").textContent = "复制失败";
+    setTimeout(() => document.getElementById("copyBtn").textContent = "复制 Brief", 1200);
+  }
+});
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.querySelectorAll(".option").forEach(b => b.setAttribute("aria-pressed", "false"));
+  Object.values(defaults).forEach(b => {
+    if (b) b.setAttribute("aria-pressed", "true");
+  });
+  render();
+});
+
+// ─── Step 0 Intake Gate ───────────────────────────────────────────────────────
+function setPreview(elId, file) {
+  const el = document.getElementById(elId);
+  if (!file) {
+    el.classList.remove("has-img");
+    el.style.backgroundImage = "";
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    el.style.backgroundImage = `url("${e.target.result}")`;
+    el.classList.add("has-img");
+    updateIntakeStatus();
+    render();
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateIntakeStatus() {
+  const inputs = getInputs();
+  const status = document.getElementById("intakeStatus");
+  const txt = status.querySelector(".txt");
+  const foot = document.getElementById("intakeFoot");
+  const msg = document.getElementById("intakeMsg");
+
+  const missing = [];
+  if (!inputs.game_name) missing.push("游戏名字");
+  if (!inputs.game_type) missing.push("游戏类型");
+  if (!inputs.icon_provided) missing.push("ICON");
+  if (!inputs.gameplay_screenshot_provided) missing.push("游戏画面截图");
+
+  if (missing.length === 0) {
+    status.dataset.state = "ok";
+    txt.textContent = "已通过";
+    foot.classList.add("ok");
+    msg.textContent = "✅ Step 0 通过。可以进入比例层 / 表现层 / 叙事层选项流程。";
+  } else {
+    status.dataset.state = "incomplete";
+    txt.textContent = "未通过";
+    foot.classList.remove("ok");
+    msg.textContent = `请补齐：${missing.join(" / ")}。AI 不允许靠图像识别猜游戏名，必须用户提供。`;
+  }
+}
+
+document.getElementById("in-name").addEventListener("input", () => { updateIntakeStatus(); render(); });
+document.getElementById("in-gametype").addEventListener("change", () => { updateIntakeStatus(); render(); });
+document.getElementById("in-icon").addEventListener("change", (e) => setPreview("prev-icon", e.target.files?.[0]));
+document.getElementById("in-shot").addEventListener("change", (e) => setPreview("prev-shot", e.target.files?.[0]));
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+updateIntakeStatus();
+render();
+</script>
+</body>
+</html>
